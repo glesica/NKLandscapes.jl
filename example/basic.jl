@@ -1,3 +1,4 @@
+include("../src/NK.jl")
 using NK
 
 srand(0)

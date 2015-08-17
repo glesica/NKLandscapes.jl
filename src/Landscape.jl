@@ -6,6 +6,7 @@ type Landscape
   n::Int64
   k::Int64
   a::Int64
+  p::Float64
   links::Matrix{Int64}
   contribs::Array{Float64}
 end
@@ -21,7 +22,7 @@ function Landscape(n::Int64, k::Int64, p::Float64, a::Int64)
   contribs = rand(Float64, n, (ones(Int, k + 1) * a)...)
   # Zero contributions with probability p.
   contribs[rand(Float64, size(contribs)...) .< p] = 0.0
-  return Landscape(n, k, a, links, contribs)
+  return Landscape(n, k, a, p, links, contribs)
 end
 
 Landscape(n::Int64, k::Int64) = Landscape(n, k, 0.0, 2)

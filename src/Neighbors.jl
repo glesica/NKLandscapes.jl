@@ -1,4 +1,4 @@
-export neighbors, neutral_neighbors, better_neighbors, best_neighbors, best_neighbor
+export neighbors, random_neighbor, neutral_neighbors, better_neighbors, best_neighbors, best_neighbor
 
 function neighbors(g::Genome, ls::Landscape, muts::Int64)
   # TODO: Implement multiple mutations.
@@ -24,6 +24,23 @@ function neighbors(g::Genome, ls::Landscape, muts::Int64)
 end
 
 neighbors(g::Genome, ls::Landscape) = neighbors(g, ls, 1)
+
+function random_neighbor(g::Genome, ls::Landscape, muts::Int64)
+  # TODO: We can speed this up by jumping right to the one we chose.
+  choices = (ls.n - 1) ^ muts
+  k = rand(1:choices)
+  i = 1
+  Task(function ()
+    for nbr = neighbors(g, ls, muts)
+      if i == k
+        produce(nbr)
+      end
+      i += 1
+    end
+  end) |> consume
+end
+
+random_neighbor(g::Genome, ls::Landscape) = random_neighbor(g, ls, 1)
 
 function neutral_neighbors(g::Genome, ls::Landscape, muts::Int64)
   f0 = fitness(g, ls)

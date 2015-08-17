@@ -20,6 +20,11 @@ for n = neighbors(g, l)
   println(n)
 end
 
+println("Random neighbor...")
+for n = random_neighbor(g, l)
+  println(n)
+end
+
 println("Neutral neighbors...")
 for n = neutral_neighbors(g, l)
   println(n)
@@ -68,6 +73,11 @@ println(nf)
 
 println("Neighbors...")
 for n = neighbors(g, nl)
+  println(n)
+end
+
+println("Random neighbor...")
+for n = random_neighbor(g, nl)
   println(n)
 end
 

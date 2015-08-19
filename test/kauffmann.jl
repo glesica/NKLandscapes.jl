@@ -3,8 +3,8 @@ using Base.Test
 
 const LC = 100 # Landscape count
 const PAIRS = [(8, 2), (8, 4), (8, 8),
-(16, 2), (16, 4), (16, 8), (16, 16)]
-#(24, 2), (24, 4), (24, 8), (24, 16), (24, 24),
+(16, 2), (16, 4), (16, 8), (16, 16)]#,
+#(24, 2), (24, 4), (24, 8), (24, 16), (24, 24)],
 #(48, 2), (48, 4), (48, 8), (48, 16), (48, 24), (48, 48),
 #(96, 2), (96, 4), (96, 8), (96, 16), (96, 24), (96, 48), (96, 96)]
 
@@ -13,7 +13,6 @@ const PAIRS = [(8, 2), (8, 4), (8, 8),
 
 println("N\tK\tμ\tσ")
 for (n, k) = PAIRS
-  # TODO: Do we actually need to do this?
   if n == k
     k = k - 1
   end
@@ -23,14 +22,16 @@ for (n, k) = PAIRS
     g0 = random_genome(l)
     f0 = fitness(g0, l)
     while true
-      g1 = best_neighbor(g0, l)
+      nbrs = better_neighbors(g0, l)
+      if length(nbrs) == 0
+        break
+      end
+      g1 = nbrs[:,rand(1:end)]
       f1 = fitness(g1, l)
       if f1 > f0
         g0 = g1
         f0 = f1
         lengths[i] += 1
-      else
-        break
       end
     end
   end

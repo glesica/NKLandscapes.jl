@@ -5,19 +5,19 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() {
-    echo "./runtests.sh [{nightlies,releases}]"
+    echo "./runtests.sh {kauffman,nowak} [{all,nightlies,releases}]"
 }
 
 runtests() {
     echo "Environment: $1"
-    vagrant ssh "$1" -c '/vagrant/runtests.sh'
+    vagrant ssh "$2" -c "/vagrant/runtests.sh $1"
 }
 
-if [ "$#" -eq 1 ]; then
-    if [ "$1" == "nightlies" ] || [ "$1" == "releases" ]; then
-        runtests $1
+if [ "$#" -eq 2 ]; then
+    if [ "$2" == "nightlies" ] || [ "$2" == "releases" ]; then
+        runtests $2
         exit 0
-    elif [ "$1" == "all" ]; then
+    elif [ "$2" == "all" ]; then
         runtests "nightlies"
         runtests "releases"
         exit 0
@@ -29,4 +29,4 @@ fi
 
 # Run the tests based on the code in the working directory, not just
 # what has been committed.
-cd "$DIR/test" && julia -e 'include("../src/NK.jl"); include("runtests.jl");'
+cd "$DIR/test" && julia -e "include(\"../src/NK.jl\"); include(\"${1}.jl\");"

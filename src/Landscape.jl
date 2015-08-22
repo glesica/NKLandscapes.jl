@@ -1,6 +1,6 @@
 using Distributions
 
-export Landscape
+export Landscape, prob_neutral
 
 type Landscape
   n::Int64
@@ -47,3 +47,8 @@ Landscape(n::Int64, k::Int64, near::Bool) = Landscape(n, k, 0.0, 2, near)
 Landscape(n::Int64, k::Int64, p::Float64, near::Bool) = Landscape(n, k, p, 2, near)
 Landscape(n::Int64, k::Int64, a::Int64, near::Bool) = Landscape(n, k, 0.0, a, near)
 
+# Barnett, L. (1998). Ruggedness and Neutrality - The NKp Family of Fitness
+# Landscapes. In Artificial Life VI (pp. 18–27).
+function prob_neutral(l::Landscape)
+  l.p ^ 2 * (1 - l.k / (l.n - 1) * (1 - l.p ^ 2)) ^ (l.n - 1)
+end

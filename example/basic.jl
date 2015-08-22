@@ -62,6 +62,9 @@ println("Neutral landscape...")
 nl = Landscape(10, 2, 0.9)
 println(nl)
 
+println("Probability neutral...")
+println(prob_neutral(nl))
+
 println("Fitness...")
 nf = fitness(g, nl)
 println(nf)

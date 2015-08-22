@@ -3,6 +3,8 @@ export neighbors, number_neighbors, random_neighbor, neutral_neighbors, better_n
 function neighbors(g::Genome, ls::Landscape, muts::Int64)
   # TODO: Implement multiple mutations.
   # TODO: Figure out if `Task`s will be GC'd on a `break`.
+  # TODO: Compute neighbors in random order as an option.
+  # TODO: Implement all four of Nowak and Krug's methods.
   if length(g) != ls.n
     error("genome is of wrong size")
   end

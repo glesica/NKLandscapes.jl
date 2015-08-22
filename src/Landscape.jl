@@ -2,41 +2,41 @@ using Distributions
 
 export Landscape, prob_neutral
 
+typealias Contribs Dict{Vector{Int64}, Float64}
+
 type Landscape
   n::Int64
   k::Int64
   a::Int64
   p::Float64
   links::Matrix{Int64}
-  contribs::Array{Float64}
+  contribs::Contribs
 end
 
 function Landscape(n::Int64, k::Int64, p::Float64, a::Int64, nearest::Bool=false)
   if k >= n
     error("k must be strictly less than n")
   end
-  links = zeros(Int64, n, k + 1)
+  links = zeros(Int64, k + 1, n)
   if nearest
     if isodd(k)
       error("k must be even to use nearest-neighbor interactions")
     end
     ks = div(k, 2)
     for i = 1:n
-      lr = links[i,:]
+      lr = links[:,i]
       lr = [j for j = (i - ks):(i + ks)]
       # Periodic boundary.
       lr[lr .< 1] = lr[lr .< 1] + n
       lr[lr .> n] = lr[lr .> n] - n
-      links[i,:] = lr
+      links[:,i] = lr
     end
   else
     for i = 1:n
-      links[i,:] = [i, sample(setdiff(1:n, [i]), k, replace=false) |> sort]
+      links[:,i] = [i, sample(setdiff(1:n, [i]), k, replace=false) |> sort]
     end
   end
-  contribs = rand(Float64, n, (ones(Int64, k + 1) * a)...)
-  # Zero contributions with probability p.
-  contribs[rand(Float64, size(contribs)...) .< p] = 0.0
+  contribs = Contribs()
   return Landscape(n, k, a, p, links, contribs)
 end
 

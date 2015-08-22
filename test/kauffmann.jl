@@ -3,11 +3,11 @@ using Base.Test
 
 const BOUNDARIES = ["Nearest-neighbor", "Random"]
 const LC = 100 # Landscape count
-const PAIRS = [(8, 2), (8, 4), (8, 8),
-(16, 2), (16, 4), (16, 8), (16, 16)]#,
-#(24, 2), (24, 4), (24, 8), (24, 16)]#, (24, 24),
-#(48, 2), (48, 4), (48, 8), (48, 16), (48, 24), (48, 48),
-#(96, 2), (96, 4), (96, 8), (96, 16), (96, 24), (96, 48), (96, 96)]
+const PAIRS = [(8, 0), (8, 2), (8, 4), (8, 8),
+(16, 0), (16, 2), (16, 4), (16, 8), (16, 16),
+(24, 0), (24, 2), (24, 4), (24, 8), (24, 16), (24, 24),
+(48, 0), (48, 2), (48, 4), (48, 8), (48, 16), (48, 24), (48, 48),
+(96, 0), (96, 2), (96, 4), (96, 8), (96, 16), (96, 24), (96, 48), (96, 96)]
 
 # Mean fitness of local optima (nearest-neighbor interactions) & Mean walk
 # lengths to local optima (nearest-neighbor interactions) Kauffmann, p. 55-56

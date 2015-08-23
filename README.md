@@ -7,8 +7,8 @@ fitness landscapes.
 
 ## Authors
 
-George Lesica <george@lesica.com>
-Alden Wright <alden.wright@umontana.edu>
+  * George Lesica <george@lesica.com>
+  * Alden Wright <alden.wright@umontana.edu>
 
 ## Tests
 

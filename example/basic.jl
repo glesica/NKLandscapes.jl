@@ -21,26 +21,20 @@ for n = neighbors(g, l)
 end
 
 println("Neutral neighbors...")
-for n = neutral_neighbors(g, l)
-  println(n)
-end
+neutral_neighbors(g, l) |> println
 
-println("Better neighbors...")
-for n = better_neighbors(g, l)
-  println(n)
-end
+println("Fitter neighbors...")
+fitter_neighbors(g, l) |> println
 
-println("Best 3 neighbors...")
-for n = best_neighbors(g, l, 3)
-  println(n)
-end
+println("Fittest 3 neighbors...")
+fittest_neighbors(g, l, 3) |> println
 
 println("Climbing hills...")
 g0 = g
 f0 = fitness(g, l)
 while true
   println(g0)
-  g1 = best_neighbor(g0, l)
+  g1 = fittest_neighbor(g0, l)
   f1 = fitness(g1, l)
   if f1 > f0
     g0 = g1
@@ -75,26 +69,20 @@ for n = neighbors(g, nl)
 end
 
 println("Neutral neighbors...")
-for n = neutral_neighbors(g, nl)
-  println(n)
-end
+neutral_neighbors(g, nl) |> println
 
-println("Better neighbors...")
-for n = better_neighbors(g, nl)
-  println(n)
-end
+println("Fitter neighbors...")
+fitter_neighbors(g, nl) |> println
 
-println("Best 3 neighbors...")
-for n = best_neighbors(g, nl, 3)
-  println(n)
-end
+println("Fittest 3 neighbors...")
+fittest_neighbors(g, nl, 3) |> println
 
 println("Climbing hills...")
 g0 = g
 f0 = fitness(g, nl)
 while true
   println(g0)
-  g1 = best_neighbor(g0, nl)
+  g1 = fittest_neighbor(g0, nl)
   f1 = fitness(g1, nl)
   if f1 > f0
     g0 = g1

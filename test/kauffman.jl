@@ -33,7 +33,7 @@ for b = [1, 2]
       g0 = random_genome(l)
       f0 = fitness(g0, l)
       while true
-        nbrs = better_neighbors(g0, l)
+        nbrs = fitter_neighbors(g0, l)
         if length(nbrs) == 0
           fitnesses[i] = f0
           break

@@ -10,6 +10,21 @@ fitness landscapes.
   * George Lesica <george@lesica.com>
   * Alden Wright <alden.wright@umontana.edu>
 
+## About NK Landscapes
+
+From [Wikipedia](https://en.wikipedia.org/wiki/NK_model):
+
+    The NK model is a mathematical model described by its primary inventor
+    Stuart Kauffman as a "tunably rugged" fitness landscape. "Tunable
+    ruggedness" captures the intuition that both the overall size of the
+    landscape and the number of its local "hills and valleys" can be adjusted
+    via changes to its two parameters, N and K, defined below.
+
+NK landscapes, and their various derivatives, are particularly useful for
+studying the process of evolution, both biological and
+computational, because they can be constructed in a variety of
+configurations.
+
 ## Tests
 
 Tests can be run with the included script. There are (or will be) several test

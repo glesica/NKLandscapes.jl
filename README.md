@@ -37,4 +37,5 @@ powerful workstations.
   * Look at implementing something similar to Newman and Englehart.
   * Make a list of mutation algorithms to implement.
   * Check to see if neutral degree drops off exp. with increasing fitness.
+  * Implement some additional mutation algorithms.
 

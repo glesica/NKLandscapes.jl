@@ -5,6 +5,11 @@
 A Julia library for conducting evolutionary experiments using the NK family of
 fitness landscapes.
 
+## Authors
+
+George Lesica <george@lesica.com>
+Alden Wright <alden.wright@umontana.edu>
+
 ## Tests
 
 Tests can be run with the included script. There are (or will be) several test

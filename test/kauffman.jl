@@ -10,11 +10,12 @@ const PAIRS = [(8, 0), (8, 2), (8, 4), (8, 8),
 (96, 0), (96, 2), (96, 4), (96, 8), (96, 16), (96, 24), (96, 48), (96, 96)]
 
 # Mean fitness of local optima (nearest-neighbor interactions) & Mean walk
-# lengths to local optima (nearest-neighbor interactions) Kauffmann, p. 55-56
+# lengths to local optima (nearest-neighbor interactions) Kauffman, p. 55-56
 
 # Mean fitness of local optima (random interactions) & Mean walk lengths to
-# local optima (random interactions) Kauffmann, p. 57
+# local optima (random interactions) Kauffman, p. 57
 
+println("Length of Paths to Optima and Fitness of Optima")
 for b = [1, 2]
   println(BOUNDARIES[b], " Interactions")
   println("N\tK\tμ len\tσ len\tμ fit\tσ fit")
@@ -30,24 +31,51 @@ for b = [1, 2]
     fitnesses = zeros(LC)
     for i = 1:LC
       l = Landscape(n, k, b == 1)
-      g0 = random_genome(l)
-      f0 = fitness(g0, l)
-      while true
-        nbrs = fitter_neighbors(g0, l)
-        if length(nbrs) == 0
-          fitnesses[i] = f0
-          break
-        end
-        g1 = nbrs[:,rand(1:end)]
-        f1 = fitness(g1, l)
-        if f1 > f0
-          g0 = g1
-          f0 = f1
-          lengths[i] += 1
-        end
-      end
+      g = random_genome(l)
+      w = random_walk(g, l)
+      lengths[i] = w.length
+      fitnesses[i] = w.fitnesses[end]
     end
     @printf("%d\t%d\t%.2f\t%.2f\t%.3f\t%.3f\n", n, k, mean(lengths), std(lengths), mean(fitnesses), std(fitnesses))
   end
 end
+
+# Number of optima. Kauffman, p. 60.
+
+MAX_FOUND = 10_000
+MAX_FAILS = 100
+
+println("Number of Optima")
+for b = [1, 2]
+  println(BOUNDARIES[b], " Interactions")
+  println("N\tK\tμ\tσ")
+  for (n, k) = PAIRS[1:9]
+    if n == k
+      k = k - 1
+      if b == 1
+        k = k - 1
+      end
+    end
+    counts = zeros(LC)
+    for i = 1:LC
+      since_last = 0
+      found_opts = Set()
+      l = Landscape(n, k, b == 1)
+      while length(found_opts) <= MAX_FOUND && since_last <= MAX_FAILS
+        g = random_genome(l)
+        w = random_walk(g, l)
+        opt = w.history[:,end]
+        if !(opt in found_opts)
+          push!(found_opts, opt)
+          since_last = 0
+        else
+          since_last += 1
+        end
+      end
+      counts[i] = length(found_opts)
+    end
+    @printf("%d\t%d\t%.2f\t%.2f\n", n, k, mean(counts), std(counts))
+  end
+end
+
 

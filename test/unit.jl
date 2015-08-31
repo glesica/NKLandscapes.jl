@@ -64,3 +64,45 @@ fn1 = fittest_neighbor(g, l)
 nfn1 = fittest_neighbor(ng, nl)
 @test nfn1 == nfn[:,end]
 
+# Random adaptive walk should terminate and move uphill
+
+rw = random_walk(g, l)
+@test rw.length > 0
+for i = 2:rw.length
+  @test f < fitness(rw.history[:,i], l)
+end
+
+nrw = random_walk(ng, nl)
+@test nrw.length > 0
+for i = 2:nrw.length
+  @test nf < fitness(nrw.history[:,i], nl)
+end
+
+# Greedy adaptive walk should terminate and move uphill
+
+gw = greedy_walk(g, l)
+@test gw.length > 0
+for i = 2:gw.length
+  @test f < fitness(gw.history[:,i], l)
+end
+
+ngw = greedy_walk(ng, nl)
+@test ngw.length > 0
+for i = 2:ngw.length
+  @test nf < fitness(ngw.history[:,i], nl)
+end
+
+# Reluctant adaptive walk should terminate and move uphill
+
+rew = reluctant_walk(g, l)
+@test rew.length > 0
+for i = 2:rew.length
+  @test f < fitness(rew.history[:,i], l)
+end
+
+nrew = reluctant_walk(ng, nl)
+@test nrew.length > 0
+for i = 2:nrew.length
+  @test nf < fitness(nrew.history[:,i], nl)
+end
+

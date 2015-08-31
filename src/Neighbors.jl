@@ -79,6 +79,7 @@ end
 
 neutral_neighbors(g::Genome, ls::Landscape) = neutral_neighbors(g, ls, 1)
 
+# TODO: Test to make sure this works when there are no fitter neighbors.
 # Returns a matrix of all fitter neighbors as the columns of a matrix, sorted
 # from lowest fitness (left) to highest fitness (right).
 function fitter_neighbors(g::Genome, ls::Landscape, muts::Int64)
@@ -121,6 +122,11 @@ function fittest_neighbors(g::Genome, ls::Landscape, count::Int64, muts::Int64)
 end
 
 fittest_neighbors(g::Genome, ls::Landscape, count::Int64) = fittest_neighbors(g, ls, count, 1)
-fittest_neighbor(g::Genome, ls::Landscape, muts::Int64) = fittest_neighbors(g, ls, 1, muts)[:,1]
-fittest_neighbor(g::Genome, ls::Landscape) = fittest_neighbors(g, ls, 1)[:,1]
+
+function fittest_neighbor(g::Genome, ls::Landscape, muts::Int64)
+  nbrs = fittest_neighbors(g, ls, 1, muts)
+  return length(nbrs) == 0 ? nbrs : nbrs[:,end]
+end
+
+fittest_neighbor(g::Genome, ls::Landscape) = fittest_neighbor(g, ls, 1)
 

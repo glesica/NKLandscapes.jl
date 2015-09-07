@@ -2,17 +2,24 @@ export Genome, fitness, random_genome
 
 typealias Genome Vector{Int64}
 
-function contrib(i::Int64, g::Genome, ls::Landscape)
+# TODO: Allow random fitnesses to be drawn from other distributions.
+
+contrib(i::Int64, g::Genome, ls::Landscape, update::Function) = begin
   cont_is = ls.links[:,i]
   cont_vs = g[cont_is]
-  get!(ls.contribs, [i, cont_vs]) do
+  return get!(update, ls.contribs, [i, cont_vs])
+end
+contrib(i::Int64, g::Genome, ls::NKLandscape) = contrib(i, g, ls, () -> rand())
+contrib(i::Int64, g::Genome, ls::NKqLandscape) = contrib(i, g, ls, () -> rand(0:(ls.q - 1)))
+contrib(i::Int64, g::Genome, ls::NKpLandscape) = begin
+  update = () -> begin
     if rand() < ls.p
       return 0.0
     else
-      # TODO: Allow this to be drawn from an arbitrary distribution.
       return rand()
     end
   end
+  return contrib(i, g, ls, update)
 end
 
 function fitness(g::Genome, ls::Landscape)

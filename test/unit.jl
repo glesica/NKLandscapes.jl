@@ -3,11 +3,11 @@ using Base.Test
 
 srand(0)
 
-l = Landscape(5, 1)
+l = NKLandscape(5, 1)
 g = random_genome(l)
 f = fitness(g, l)
 
-nl = Landscape(5, 1, 0.8)
+nl = NKpLandscape(5, 1, 0.9)
 ng = random_genome(nl)
 nf = fitness(ng, nl)
 

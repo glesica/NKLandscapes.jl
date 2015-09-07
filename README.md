@@ -40,8 +40,8 @@ be run with `./runtests.sh SUITE` where `SUITE` is one of the following:
   * `kauffman` - experiments from [1]
   * `nowak` - experiments from [2]
 
-Note that these tests may take quite a long time to finish even on very
-powerful workstations.
+Note that these tests may take quite a long time to finish even on a very
+powerful workstation.
 
 ## Bibliography
 
@@ -50,11 +50,9 @@ powerful workstations.
   2. Nowak, S., & Krug, J. (2015). Analysis of adaptive walks on NK fitness
      landscapes with different interaction schemes. Journal of Statistical
      Mechanics: Theory and Experiment, 2015(6), P06014.
-     doi:10.1088/1742-5468/2015/06/P06014
 
 ## TODO
 
-  * Look at implementing something similar to Newman and Englehart.
   * Implement all four Nowak and Krug random walk strategies.
   * Finish functional tests.
 

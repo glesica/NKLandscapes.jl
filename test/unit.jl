@@ -1,149 +1,119 @@
 using NK
-using Base.Test
+using FactCheck
 
 srand(0)
 
-l = NKLandscape(10, 1)
-g = random_genome(l)
-f = fitness(g, l)
+facts("Landscapes") do
+  l = NKLandscape(10, 1)
+  g = random_genome(l)
+  f = fitness(g, l)
 
-nl_q = NKqLandscape(10, 1, 2)
-ng_q = random_genome(nl_q)
-nf_q = fitness(ng_q, nl_q)
+  nl_q = NKqLandscape(10, 1, 2)
+  ng_q = random_genome(nl_q)
+  nf_q = fitness(ng_q, nl_q)
 
-nl_p = NKpLandscape(10, 1, 0.8)
-ng_p = random_genome(nl_p)
-nf_p = fitness(ng_p, nl_p)
+  nl_p = NKpLandscape(10, 1, 0.8)
+  ng_p = random_genome(nl_p)
+  nf_p = fitness(ng_p, nl_p)
 
-# Neighbors should differ at one locus
+  context("Neighbors should differ at one locus") do
+    function test_neighbors(genome, landscape)
+      for nbr = neighbors(genome, landscape)
+        @fact (genome - nbr) |> sum |> abs --> 1
+      end
+    end
 
-test_neighbors(genome, landscape) = begin
-  for nbr = neighbors(genome, landscape)
-    @test (genome - nbr) |> sum |> abs == 1
+    test_neighbors(g, l)
+    test_neighbors(ng_q, nl_q)
+    test_neighbors(ng_p, nl_p)
   end
-end
 
-test_neighbors(g, l)
-test_neighbors(ng_q, nl_q)
-test_neighbors(ng_p, nl_p)
+  context("Neutral neighbors should have the same fitness") do
+    function test_neutral_neighbors(genome, landscape)
+      nbrs = neutral_neighbors(genome, landscape)
+      score = fitness(genome, landscape)
+      @fact size(nbrs)[1] --> landscape.n
+      @fact size(nbrs)[2] --> greater_than(0)
+      for j = 1:size(nbrs)[2]
+        @fact fitness(nbrs[:,j], landscape) --> score
+      end
+    end
 
-# Neutral neighbors should have the same fitness
-
-nn_q = neutral_neighbors(ng_q, nl_q)
-@test size(nn_q)[1] == nl_q.n
-@test size(nn_q)[2] > 0
-for j = 1:size(nn_q)[2]
-  @test nf_q == fitness(nn_q[:,j], nl_q)
-end
-
-nn_p = neutral_neighbors(ng_p, nl_p)
-@test size(nn_p)[1] == nl_p.n
-@test size(nn_p)[2] > 0
-for j = 1:size(nn_p)[2]
-  @test nf_p == fitness(nn_p[:,j], nl_p)
-end
-
-# Fitter neighbors should all be fitter
-
-test_fitter_neighbors(landscape, nbrs, score) = begin
-  @test size(nbrs)[1] == landscape.n
-  @test size(nbrs)[2] > 0
-  for j = 1:size(nbrs)[2]
-    @test score < fitness(nbrs[:,j], landscape)
+    test_neutral_neighbors(ng_q, nl_q)
+    test_neutral_neighbors(ng_p, nl_p)
   end
-end
 
-fn = fitter_neighbors(g, l)
-test_fitter_neighbors(l, fn, f)
+  context("Fitter neighbors should all be fitter") do
+    function test_fitter_neighbors(nbrs, landscape, score)
+      @fact size(nbrs)[1] --> landscape.n
+      @fact size(nbrs)[2] --> greater_than(0)
+      for j = 1:size(nbrs)[2]
+        @fact fitness(nbrs[:,j], landscape) --> greater_than(score)
+      end
+    end
 
-nfn_q = fitter_neighbors(ng_q, nl_q)
-test_fitter_neighbors(nl_q, nfn_q, nf_q)
+    fn = fitter_neighbors(g, l)
+    test_fitter_neighbors(fn, l, f)
 
-nfn_p = fitter_neighbors(ng_p, nl_p)
-test_fitter_neighbors(nl_p, nfn_p, nf_p)
+    nfn_q = fitter_neighbors(ng_q, nl_q)
+    test_fitter_neighbors(nfn_q, nl_q, nf_q)
 
-# Fittest n neighbors should be all neighbors
+    nfn_p = fitter_neighbors(ng_p, nl_p)
+    test_fitter_neighbors(nfn_p, nl_p, nf_p)
+  end
 
-fnn = fittest_neighbors(g, l, l.n)
-@test size(fnn)[1] == l.n
-@test size(fnn)[2] == number_neighbors(g, l)
+  context("Fittest n neighbors should be all neighbors") do
+    fnn = fittest_neighbors(g, l, l.n)
+    @fact size(fnn)[1] --> l.n
+    @fact size(fnn)[2] --> number_neighbors(g, l)
 
-nfnn_q = fittest_neighbors(ng_q, nl_q, nl_q.n)
-@test size(nfnn_q)[1] == nl_q.n
-@test size(nfnn_q)[2] == number_neighbors(ng_q, nl_q)
+    nfnn_q = fittest_neighbors(ng_q, nl_q, nl_q.n)
+    @fact size(nfnn_q)[1] --> nl_q.n
+    @fact size(nfnn_q)[2] --> number_neighbors(ng_q, nl_q)
 
-nfnn_p = fittest_neighbors(ng_p, nl_p, nl_p.n)
-@test size(nfnn_p)[1] == nl_p.n
-@test size(nfnn_p)[2] == number_neighbors(ng_p, nl_p)
+    nfnn_p = fittest_neighbors(ng_p, nl_p, nl_p.n)
+    @fact size(nfnn_p)[1] --> nl_p.n
+    @fact size(nfnn_p)[2] --> number_neighbors(ng_p, nl_p)
+  end
 
-# Fittest 1 neighbor should be fittest neighbor
+  context("Fittest 1 neighbor should be the fittest neighbor") do
+    function test_fittest_neighbor(genome, landscape)
+      nbrs = fitter_neighbors(genome, landscape)
+      nbr1 = fittest_neighbor(genome, landscape)
+      @fact nbr1 --> nbrs[:,end]
+    end
 
-fn1 = fittest_neighbor(g, l)
-@test fn1 == fn[:,end]
+    test_fittest_neighbor(g, l)
+    test_fittest_neighbor(ng_q, nl_q)
+    test_fittest_neighbor(ng_p, nl_p)
+  end
 
-nfn1_q = fittest_neighbor(ng_q, nl_q)
-@test nfn1_q == nfn_q[:,end]
+  context("Adaptive walks") do
+    function test_adaptive_walk(walk_function, genome, landscape)
+      walk = walk_function(genome, landscape)
+      @fact walk.length --> greater_than(0)
+      for i = 2:walk.length
+        @fact fitness(walk.history[:,i], landscape) --> greater_than(fitness(genome, landscape))
+      end
+    end
 
-nfn1_p = fittest_neighbor(ng_p, nl_p)
-@test nfn1_p == nfn_p[:,end]
+    context("Random adaptive walk should terminate and move uphill") do
+      test_adaptive_walk(random_walk, g, l)
+      test_adaptive_walk(random_walk, ng_q, nl_q)
+      test_adaptive_walk(random_walk, ng_p, nl_p)
+    end
 
-# Random adaptive walk should terminate and move uphill
+    context("Greedy adaptive walk should terminate and move uphill") do
+      test_adaptive_walk(greedy_walk, g, l)
+      test_adaptive_walk(greedy_walk, ng_q, nl_q)
+      test_adaptive_walk(greedy_walk, ng_p, nl_p)
+    end
 
-rw = random_walk(g, l)
-@test rw.length > 0
-for i = 2:rw.length
-  @test f < fitness(rw.history[:,i], l)
-end
-
-nrw_q = random_walk(ng_q, nl_q)
-@test nrw_q.length > 0
-for i = 2:nrw_q.length
-  @test nf_q < fitness(nrw_q.history[:,i], nl_q)
-end
-
-nrw_p = random_walk(ng_p, nl_p)
-@test nrw_p.length > 0
-for i = 2:nrw_p.length
-  @test nf_p < fitness(nrw_p.history[:,i], nl_p)
-end
-
-# Greedy adaptive walk should terminate and move uphill
-
-gw = greedy_walk(g, l)
-@test gw.length > 0
-for i = 2:gw.length
-  @test f < fitness(gw.history[:,i], l)
-end
-
-ngw_q = greedy_walk(ng_q, nl_q)
-@test ngw_q.length > 0
-for i = 2:ngw_q.length
-  @test nf_q < fitness(ngw_q.history[:,i], nl_q)
-end
-
-ngw_p = greedy_walk(ng_p, nl_p)
-@test ngw_p.length > 0
-for i = 2:ngw_p.length
-  @test nf_p < fitness(ngw_p.history[:,i], nl_p)
-end
-
-# Reluctant adaptive walk should terminate and move uphill
-
-rew = reluctant_walk(g, l)
-@test rew.length > 0
-for i = 2:rew.length
-  @test f < fitness(rew.history[:,i], l)
-end
-
-nrew_q = reluctant_walk(ng_q, nl_q)
-@test nrew_q.length > 0
-for i = 2:nrew_q.length
-  @test nf_q < fitness(nrew_q.history[:,i], nl_q)
-end
-
-nrew_p = reluctant_walk(ng_p, nl_p)
-@test nrew_p.length > 0
-for i = 2:nrew_p.length
-  @test nf_p < fitness(nrew_p.history[:,i], nl_p)
+    context("Reluctant adaptive walk should terminate and move uphill") do
+      test_adaptive_walk(reluctant_walk, g, l)
+      test_adaptive_walk(reluctant_walk, ng_q, nl_q)
+      test_adaptive_walk(reluctant_walk, ng_p, nl_p)
+    end
+  end
 end
 

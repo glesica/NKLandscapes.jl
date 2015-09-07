@@ -22,6 +22,15 @@ contrib(i::Int64, g::Genome, ls::NKpLandscape) = begin
   return contrib(i, g, ls, update)
 end
 
+function fitness(g::Genome, ls::NKqLandscape)
+  if length(g) != ls.n
+    error("genome is of wrong size")
+  end
+  (map(1:length(g)) do i
+    contrib(i, g, ls)
+  end |> mean) / (ls.q - 1)
+end
+
 function fitness(g::Genome, ls::Landscape)
   # TODO: Do we include the fake zeros in the sum or just let the fitness range lower?
   if length(g) != ls.n

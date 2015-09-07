@@ -28,7 +28,7 @@ function makelinks(n::Int64, k::Int64, near::Bool)
     end
   else
     for i = 1:n
-      links[:,i] = [i, sample(setdiff(1:n, [i]), k, replace=false) |> sort]
+      links[:,i] = [i; sample(setdiff(1:n, [i]), k, replace=false) |> sort]
     end
   end
   return links

@@ -7,7 +7,7 @@ typealias Genome Vector{Int64}
 contrib(i::Int64, g::Genome, ls::Landscape, update::Function) = begin
   cont_is = ls.links[:,i]
   cont_vs = g[cont_is]
-  return get!(update, ls.contribs, [i, cont_vs])
+  return get!(update, ls.contribs, [i; cont_vs])
 end
 contrib(i::Int64, g::Genome, ls::NKLandscape) = contrib(i, g, ls, () -> rand())
 contrib(i::Int64, g::Genome, ls::NKqLandscape) = contrib(i, g, ls, () -> rand(0:(ls.q - 1)))

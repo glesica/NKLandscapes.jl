@@ -1,14 +1,14 @@
-# NK
-
 [![Build Status](https://travis-ci.org/glesica/NK.jl.svg?branch=master)](https://travis-ci.org/glesica/NK.jl)
+
+# NK.jl
 
 A Julia library for conducting evolutionary experiments using the NK family of
 fitness landscapes.
 
 ## Authors
 
-  * George Lesica <george@lesica.com>
-  * Alden Wright <alden.wright@umontana.edu>
+  * George Lesica (<george.lesica@umontana.edu>)
+  * Alden Wright (<alden.wright@umontana.edu>)
 
 ## About NK Landscapes
 
@@ -18,12 +18,12 @@ From [Wikipedia](https://en.wikipedia.org/wiki/NK_model):
     Stuart Kauffman as a "tunably rugged" fitness landscape. "Tunable
     ruggedness" captures the intuition that both the overall size of the
     landscape and the number of its local "hills and valleys" can be adjusted
-    via changes to its two parameters, N and K, defined below.
+    via changes to its two parameters, N and K...
 
-NK landscapes, and their various derivatives, are particularly useful for
-studying the process of evolution, both biological and
-computational, because they can be constructed in a variety of
-configurations.
+The NK landscape model, and its various derivatives, are particularly useful
+for studying the process of evolution, both biological and computational,
+because they can be constructed to exhibit a variety of interesting properties
+including neutrality..
 
 ## Tests
 

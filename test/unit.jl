@@ -1,7 +1,7 @@
 using NK
 using FactCheck
 
-srand(0)
+srand(1)
 
 facts("Landscapes") do
   l = NKLandscape(10, 1)
@@ -18,7 +18,9 @@ facts("Landscapes") do
 
   context("Neighbors should differ at one locus") do
     function test_neighbors(genome, landscape)
-      for nbr = neighbors(genome, landscape)
+      nbrs = all_neighbors(genome, landscape)
+      for i = 1:number_neighbors(genome, landscape)
+        nbr = nbrs[:, i]
         @fact (genome - nbr) |> sum |> abs --> 1
       end
     end

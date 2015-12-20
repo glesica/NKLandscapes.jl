@@ -8,6 +8,8 @@ typealias Links Matrix{Int64}
 # `true`, then links will be generated between a locus `i` and its `k / 2`
 # neighbors to either side, assuming a periodic boundary at the ends of the
 # array.
+# Each set of links is a column within the resulting array. There is one
+# column for each locus in the genotype.
 function makelinks(n::Int64, k::Int64, near::Bool)
   if k >= n
     error("k must be strictly less than n")
@@ -40,6 +42,9 @@ typealias Contribs Dict{Vector{Int64}, Float64}
 
 abstract Landscape
 
+# Construct an NK lanscape, see:
+# Kauffman, S. A. (1993). The Origins of Order: Self-Organization and Selection
+# in Evolution. New York, New York, USA: Oxford University Press.
 type NKLandscape <: Landscape
   n::Int64
   k::Int64
@@ -48,15 +53,16 @@ type NKLandscape <: Landscape
   contribs::Contribs
 end
 
-# Construct an NK lanscape, see:
-# Kauffman, S. A. (1993). The Origins of Order: Self-Organization and Selection
-# in Evolution. New York, New York, USA: Oxford University Press.
 function NKLandscape(n::Int64, k::Int64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
   contribs = Contribs()
   return NKLandscape(n, k, a, links, contribs)
 end
 
+# Construct an NKq landscape, see:
+# Newman, M., & Engelhardt, R. (1998). Effects of selective neutrality on the
+# evolution of molecular species. Proceedings of the Royal Society of London.
+# Series B: Biological Sciences, 265(1403)
 type NKqLandscape <: Landscape
   n::Int64
   k::Int64
@@ -66,16 +72,15 @@ type NKqLandscape <: Landscape
   contribs::Contribs
 end
 
-# Construct an NKq landscape, see:
-# Newman, M., & Engelhardt, R. (1998). Effects of selective neutrality on the
-# evolution of molecular species. Proceedings of the Royal Society of London.
-# Series B: Biological Sciences, 265(1403)
 function NKqLandscape(n::Int64, k::Int64, q::Int64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
   contribs = Contribs()
   return NKqLandscape(n, k, q, a, links, contribs)
 end
 
+# Construct an NKp landscape, see:
+# Barnett, L. (1998). Ruggedness and Neutrality - The NKp Family of Fitness
+# Landscapes. In Artificial Life VI (pp. 18–27).
 type NKpLandscape <: Landscape
   n::Int64
   k::Int64
@@ -85,9 +90,6 @@ type NKpLandscape <: Landscape
   contribs::Contribs
 end
 
-# Construct an NKp landscape, see:
-# Barnett, L. (1998). Ruggedness and Neutrality - The NKp Family of Fitness
-# Landscapes. In Artificial Life VI (pp. 18–27).
 function NKpLandscape(n::Int64, k::Int64, p::Float64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
   contribs = Contribs()

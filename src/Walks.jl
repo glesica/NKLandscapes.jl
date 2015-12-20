@@ -22,7 +22,7 @@ Walk(s::Symbol, g::Genome, f::Float64) = Walk(s, 0, reshape(g, (length(g), 1)), 
 function add_step!(w::Walk, g::Genome, f::Float64)
   w.length += 1
   w.history = [w.history g]
-  w.fitnesses = [w.fitnesses, f]
+  w.fitnesses = [w.fitnesses; f]
 end
 
 function natural_walk(g::Genome, l::Landscape)

@@ -5,23 +5,23 @@ srand(1)
 
 facts("Landscapes") do
   l = NKLandscape(10, 1)
-  g = random_genome(l)
+  g = random_genotype(l)
   f = fitness(g, l)
 
   nl_q = NKqLandscape(10, 1, 2)
-  ng_q = random_genome(nl_q)
+  ng_q = random_genotype(nl_q)
   nf_q = fitness(ng_q, nl_q)
 
   nl_p = NKpLandscape(10, 1, 0.8)
-  ng_p = random_genome(nl_p)
+  ng_p = random_genotype(nl_p)
   nf_p = fitness(ng_p, nl_p)
 
   context("Neighbors should differ at one locus") do
-    function test_neighbors(genome, landscape)
-      nbrs = all_neighbors(genome, landscape)
-      for i = 1:number_neighbors(genome, landscape)
+    function test_neighbors(genotype, landscape)
+      nbrs = all_neighbors(genotype, landscape)
+      for i = 1:number_neighbors(genotype, landscape)
         nbr = nbrs[:, i]
-        @fact (genome - nbr) |> sum |> abs --> 1
+        @fact (genotype - nbr) |> sum |> abs --> 1
       end
     end
 
@@ -31,9 +31,9 @@ facts("Landscapes") do
   end
 
   context("Neutral neighbors should have the same fitness") do
-    function test_neutral_neighbors(genome, landscape)
-      nbrs = neutral_neighbors(genome, landscape)
-      score = fitness(genome, landscape)
+    function test_neutral_neighbors(genotype, landscape)
+      nbrs = neutral_neighbors(genotype, landscape)
+      score = fitness(genotype, landscape)
       @fact size(nbrs)[1] --> landscape.n
       @fact size(nbrs)[2] --> greater_than(0)
       for j = 1:size(nbrs)[2]
@@ -79,9 +79,9 @@ facts("Landscapes") do
   end
 
   context("Fittest 1 neighbor should be the fittest neighbor") do
-    function test_fittest_neighbor(genome, landscape)
-      nbrs = fitter_neighbors(genome, landscape)
-      nbr1 = fittest_neighbor(genome, landscape)
+    function test_fittest_neighbor(genotype, landscape)
+      nbrs = fitter_neighbors(genotype, landscape)
+      nbr1 = fittest_neighbor(genotype, landscape)
       @fact nbr1 --> nbrs[:,end]
     end
 
@@ -91,11 +91,11 @@ facts("Landscapes") do
   end
 
   context("Adaptive walks") do
-    function test_adaptive_walk(walk_function, genome, landscape)
-      walk = walk_function(genome, landscape)
+    function test_adaptive_walk(walk_function, genotype, landscape)
+      walk = walk_function(genotype, landscape)
       @fact walk.length --> greater_than(0)
       for i = 2:walk.length
-        @fact fitness(walk.history[:,i], landscape) --> greater_than(fitness(genome, landscape))
+        @fact fitness(walk.history[:,i], landscape) --> greater_than(fitness(genotype, landscape))
       end
     end
 

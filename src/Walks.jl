@@ -4,31 +4,31 @@ type Walk
   # Can be one of :natural, :random, :greedy, :reluctant for now.
   strategy::Symbol
 
-  # The number of transitions from the original genome to the ultimate optimum.
+  # The number of transitions from the original genotype to the ultimate optimum.
   # This will be one less than the width of the history matrix.
   length::Int64
 
-  # Array of genomes found along the path from the original to the optimum.
-  # Each genome is stored in a column.
+  # Array of genotype found along the path from the original to the optimum.
+  # Each genotype is stored in a column.
   history::Matrix{Int64}
 
-  # Vector of fitnesses of the genomes visited along the path to the optimum.
+  # Vector of fitnesses of the genotype visited along the path to the optimum.
   # The ith fitness corresponds to the ith column in the history matrix.
   fitnesses::Vector{Float64}
 end
 
-Walk(s::Symbol, g::Genome, f::Float64) = Walk(s, 0, reshape(g, (length(g), 1)), [f])
+Walk(s::Symbol, g::Genotype, f::Float64) = Walk(s, 0, reshape(g, (length(g), 1)), [f])
 
-function add_step!(w::Walk, g::Genome, f::Float64)
+function add_step!(w::Walk, g::Genotype, f::Float64)
   w.length += 1
   w.history = [w.history g]
   w.fitnesses = [w.fitnesses; f]
 end
 
-function natural_walk(g::Genome, l::Landscape)
+function natural_walk(g::Genotype, l::Landscape)
 end
 
-function random_walk(g::Genome, l::Landscape)
+function random_walk(g::Genotype, l::Landscape)
   g0 = g
   f0 = fitness(g0, l)
   w = Walk(:random, g0, f0)
@@ -45,7 +45,7 @@ function random_walk(g::Genome, l::Landscape)
   return w
 end
 
-function greedy_walk(g::Genome, l::Landscape)
+function greedy_walk(g::Genotype, l::Landscape)
   g0 = g
   f0 = fitness(g0, l)
   w = Walk(:greedy, g0, f0)
@@ -62,7 +62,7 @@ function greedy_walk(g::Genome, l::Landscape)
   return w
 end
 
-function reluctant_walk(g::Genome, l::Landscape)
+function reluctant_walk(g::Genotype, l::Landscape)
   g0 = g
   f0 = fitness(g0, l)
   w = Walk(:random, g0, f0)

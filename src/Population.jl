@@ -14,7 +14,7 @@ end
 function random_population(count::Int64, ls::Landscape)
   p = zeros(Int64, ls.n, count)
   for i = 1:count
-    p[:,i] = random_genome(ls)
+    p[:,i] = random_genotype(ls)
   end
   p
 end

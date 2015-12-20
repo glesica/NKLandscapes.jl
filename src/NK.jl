@@ -1,7 +1,7 @@
 module NK
 
 include("Landscape.jl")
-include("Genome.jl")
+include("Genotype.jl")
 include("Population.jl")
 include("Neighbors.jl")
 include("Walks.jl")

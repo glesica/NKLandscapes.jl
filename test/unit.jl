@@ -1,4 +1,4 @@
-using NK
+using NKLandscapes
 using FactCheck
 
 srand(0)

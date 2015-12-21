@@ -1,3 +1,3 @@
-using NK
+using NKLandscapes
 using Base.Test
 

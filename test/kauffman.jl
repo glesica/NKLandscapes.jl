@@ -1,4 +1,4 @@
-using NK
+using NKLandscapes
 using Base.Test
 
 const BOUNDARIES = ["Nearest-neighbor", "Random"]

@@ -1,4 +1,4 @@
-module NK
+module NKLandscapes
 
 include("Landscape.jl")
 include("Genotype.jl")

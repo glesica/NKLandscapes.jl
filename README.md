@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/glesica/NK.jl.svg?branch=master)](https://travis-ci.org/glesica/NK.jl)
+[![Build Status](https://travis-ci.org/glesica/NKLandscapes.jl.svg?branch=master)](https://travis-ci.org/glesica/NKLandscapes.jl)
 
-# NK.jl
+# NKLandscapes.jl
 
 A Julia library for conducting evolutionary experiments using the NK family of
 fitness landscapes.
@@ -26,6 +26,10 @@ because they can be constructed to exhibit a variety of interesting properties
 including neutrality..
 
 ## Tests
+
+If the package has been installed using Julia's package management tools, the
+tests can be run simply by issuing `Pkg.test("NKLandscapes")` in the Julia
+REPL.
 
 Tests can be run with the included script. There are (or will be) several test
 suites. First, a set of unit tests that exercise basic functionality and check

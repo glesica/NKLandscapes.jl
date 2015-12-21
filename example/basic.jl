@@ -1,5 +1,5 @@
-include("../src/NK.jl")
-using NK
+include("../src/NKLandscapes.jl")
+using NKLandscapes
 
 srand(0)
 

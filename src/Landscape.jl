@@ -1,3 +1,5 @@
+import Base.show
+
 using Distributions
 
 export Landscape, NKLandscape, NKqLandscape, NKpLandscape, prob_neutral
@@ -42,6 +44,8 @@ typealias Contribs Dict{Vector{Int64}, Float64}
 
 abstract Landscape
 
+show(io::Base.IO, l::Landscape) = print(io, "$(typeof(l))($(l.n), $(l.k))")
+
 # Construct an NK lanscape, see:
 # Kauffman, S. A. (1993). The Origins of Order: Self-Organization and Selection
 # in Evolution. New York, New York, USA: Oxford University Press.
@@ -58,6 +62,8 @@ function NKLandscape(n::Int64, k::Int64; a::Int64=2, near::Bool=false)
   contribs = Contribs()
   return NKLandscape(n, k, a, links, contribs)
 end
+
+show(io::Base.IO, l::NKLandscape) = print(io, "NKLandscape($(l.n), $(l.k))")
 
 # Construct an NKq landscape, see:
 # Newman, M., & Engelhardt, R. (1998). Effects of selective neutrality on the
@@ -78,6 +84,8 @@ function NKqLandscape(n::Int64, k::Int64, q::Int64; a::Int64=2, near::Bool=false
   return NKqLandscape(n, k, q, a, links, contribs)
 end
 
+show(io::Base.IO, l::NKqLandscape) = print(io, "NKqLandscape($(l.n), $(l.k), $(l.q))")
+
 # Construct an NKp landscape, see:
 # Barnett, L. (1998). Ruggedness and Neutrality - The NKp Family of Fitness
 # Landscapes. In Artificial Life VI (pp. 18–27).
@@ -95,6 +103,8 @@ function NKpLandscape(n::Int64, k::Int64, p::Float64; a::Int64=2, near::Bool=fal
   contribs = Contribs()
   return NKpLandscape(n, k, p, a, links, contribs)
 end
+
+show(io::Base.IO, l::NKpLandscape) = print(io, "NKpLandscape($(l.n), $(l.k), $(l.p))")
 
 # Compute an estimate of the probability that a mutation within an NKp
 # landscape is neutral.

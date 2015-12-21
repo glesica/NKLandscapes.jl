@@ -3,12 +3,12 @@ using NK
 
 srand(0)
 
-println("Landscape...")
-l = Landscape(10, 2)
+println("NKLandscape...")
+l = NKLandscape(10, 2)
 println(l)
 
 println("Random genome...")
-g = random_genome(l)
+g = rand(Genotype, l)
 println(g)
 
 println("Fitness...")
@@ -16,8 +16,10 @@ f = fitness(g, l)
 println(f)
 
 println("Neighbors...")
-for n = neighbors(g, l)
-  println(n)
+nbrs = all_neighbors(g, l)
+for i = number_neighbors(g, l)
+  nbr = nbrs[:,i]
+  println(nbr)
 end
 
 println("Neutral neighbors...")
@@ -45,15 +47,15 @@ while true
 end
 
 println("Population climbing hills...")
-p = random_population(5, l)
+p = rand(Population, l, 5)
 println(p)
 
 println("Population fitnesses...")
-fs = fitnesses(p, l)
+fs = popfits(p, l)
 println(fs)
 
-println("Neutral landscape...")
-nl = Landscape(10, 2, 0.9)
+println("NKp landscape...")
+nl = NKpLandscape(10, 2, 0.9)
 println(nl)
 
 println("Probability neutral...")
@@ -64,8 +66,10 @@ nf = fitness(g, nl)
 println(nf)
 
 println("Neighbors...")
-for n = neighbors(g, nl)
-  println(n)
+nbrs = all_neighbors(g, nl)
+for i = number_neighbors(g, nl)
+  nbr = nbrs[:,i]
+  println(nbr)
 end
 
 println("Neutral neighbors...")
@@ -93,9 +97,9 @@ while true
 end
 
 println("Population climbing hills...")
-p = random_population(5, nl)
+p = rand(Population, nl, 5)
 println(p)
 
 println("Population fitnesses...")
-fs = fitnesses(p, nl)
+fs = popfits(p, nl)
 println(fs)

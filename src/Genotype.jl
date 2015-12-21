@@ -1,3 +1,5 @@
+import Base.Random: rand, zeros
+
 export Genotype, fitness, random_genotype
 
 typealias Genotype Vector{Int64}
@@ -43,5 +45,5 @@ function fitness(g::Genotype, ls::Landscape)
   end |> mean
 end
 
-random_genotype(ls::Landscape) = [rand(1:ls.a) for _ = 1:ls.n]
-
+rand(::Type{Genotype}, ls::Landscape) = [rand(1:ls.a) for _ = 1:ls.n]
+zeros(::Type{Genotype}, ls::Landscape) = [1 for _ = 1:ls.n]

@@ -25,6 +25,11 @@ for studying the process of evolution, both biological and computational,
 because they can be constructed to exhibit a variety of interesting properties
 including neutrality..
 
+## Install
+
+NKLandscapes is listed in the Julia package index, so installation of the most
+recent release is as simple as `Pkg.add("NKLandscapes")`.
+
 ## Tests
 
 If the package has been installed using Julia's package management tools, the

@@ -3,21 +3,20 @@ using FactCheck
 
 srand(0)
 
-facts("NK") do
-  context("Landscapes") do
-    landscapes = [
-      NKLandscape(10, 1),
-      NKLandscape(10, 2),
-      NKqLandscape(10, 1, 2),
-      NKpLandscape(10, 1, 0.8),
-    ]
-    
-    for l = landscapes
+facts("NKLandscapes.jl") do
+  landscapes = [
+    NKLandscape(10, 1),
+    NKLandscape(10, 2),
+    NKqLandscape(10, 1, 2),
+    NKpLandscape(10, 1, 0.8),
+  ]
 
-      g = rand(Genotype, l)
-      f = fitness(g, l)
+  for l = landscapes
+    context("$(l)") do
+      context("Landscapes") do
+        g = rand(Genotype, l)
+        f = fitness(g, l)
 
-      context("$(l)") do
 
         context("Neighbors should differ at one locus") do
           function test_neighbors(genotype, landscape)
@@ -98,45 +97,37 @@ facts("NK") do
           end
         end
       end
-    end
-  end
 
-  context("Populations") do
-    landscapes = [
-      NKLandscape(10, 1),
-      NKqLandscape(10, 1, 2),
-      NKpLandscape(10, 1, 0.8),
-    ]
-    
-    for l = landscapes
-      context("Should be the correct size") do
-        function test_population_size(p::Population, l::Landscape, n)
-          @fact popsize(p) --> n
-          @fact size(p)[1] --> l.n
-          @fact size(p)[2] --> n
-        end
+      context("Populations") do
+        context("Should be the correct size") do
+          function test_population_size(p::Population, l::Landscape, n)
+            @fact popsize(p) --> n
+            @fact size(p)[1] --> l.n
+            @fact size(p)[2] --> n
+          end
 
-        for n = [1, 10, 100]
-          rp = rand(Population, l, n)
-          test_population_size(rp, l, n)
-          zp = zeros(Population, l, n)
-          test_population_size(zp, l, n)
-        end
-      end
-
-      context("Should compute fitnesses") do
-        function test_population_fitnesses(p::Population, l::Landscape)
-          fs = popfits(p, l)
-          for i = 1:popsize(p)
-            @fact fs[i] --> fitness(p[:,i], l)
+          for n = [1, 10, 100]
+            rp = rand(Population, l, n)
+            test_population_size(rp, l, n)
+            zp = zeros(Population, l, n)
+            test_population_size(zp, l, n)
           end
         end
 
-        for n = [1, 10, 100]
-          rp = rand(Population, l, n)
-          test_population_fitnesses(rp, l)
-          zp = zeros(Population, l, n)
-          test_population_fitnesses(zp, l)
+        context("Should compute fitnesses") do
+          function test_population_fitnesses(p::Population, l::Landscape)
+            fs = popfits(p, l)
+            for i = 1:popsize(p)
+              @fact fs[i] --> fitness(p[:,i], l)
+            end
+          end
+
+          for n = [1, 10, 100]
+            rp = rand(Population, l, n)
+            test_population_fitnesses(rp, l)
+            zp = zeros(Population, l, n)
+            test_population_fitnesses(zp, l)
+          end
         end
       end
     end

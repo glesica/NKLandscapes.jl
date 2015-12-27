@@ -30,8 +30,8 @@ for b = [1, 2]
     lengths = zeros(LC)
     fitnesses = zeros(LC)
     for i = 1:LC
-      l = Landscape(n, k, b == 1)
-      g = random_genome(l)
+      l = NKLandscape(n, k, near=b == 1)
+      g = rand(Genotype, l)
       w = random_walk(g, l)
       lengths[i] = w.length
       fitnesses[i] = w.fitnesses[end]
@@ -60,9 +60,9 @@ for b = [1, 2]
     for i = 1:LC
       since_last = 0
       found_opts = Set()
-      l = Landscape(n, k, b == 1)
+      l = NKLandscape(n, k, near=b == 1)
       while length(found_opts) <= MAX_FOUND && since_last <= MAX_FAILS
-        g = random_genome(l)
+        g = rand(Genotype, l)
         w = random_walk(g, l)
         opt = w.history[:,end]
         if !(opt in found_opts)

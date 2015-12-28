@@ -95,7 +95,7 @@ function fittest_neighbors(g::Genotype, ls::Landscape, count::Int64)
   for nbr = neighbors(g, ls)
     f0, i = findmin(fits)
     f1 = fitness(nbr, ls)
-    if f1 > f0
+    if f1 >= f0
       nbrs[:,i] = nbr
       fits[i] = f1
     end

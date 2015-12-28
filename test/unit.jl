@@ -1,7 +1,7 @@
 using NKLandscapes
 using FactCheck
 
-srand(0)
+srand(1)
 
 facts("NKLandscapes.jl") do
   landscapes = [
@@ -66,13 +66,9 @@ facts("NKLandscapes.jl") do
         end
 
         context("Fittest 1 neighbor should be the fittest neighbor") do
-          function test_fittest_neighbor(genotype, landscape)
-            nbrs = fitter_neighbors(genotype, landscape)
-            nbr1 = fittest_neighbor(genotype, landscape)
-            @fact nbr1 --> nbrs[:,end]
-          end
-
-          test_fittest_neighbor(g, l)
+          nbrs = fitter_neighbors(g, l)
+          nbr1 = fittest_neighbor(g, l)
+          @fact nbr1 --> nbrs[:,end]
         end
 
         context("Adaptive walks") do
@@ -127,6 +123,27 @@ facts("NKLandscapes.jl") do
             test_population_fitnesses(rp, l)
             zp = zeros(Population, l, n)
             test_population_fitnesses(zp, l)
+          end
+        end
+      end
+
+      context("Selection") do
+        for n = [1, 10, 100]
+          context("Should result in a population of the same size") do
+            rp = rand(Population, l, n)
+            np = propsel(rp, l)
+            @fact popsize(np) --> n
+          end
+
+          context("Should contain only members of the original population") do
+            rp = rand(Population, l, n)
+            np = propsel(rp, l)
+            for i_n = 1:n
+              founds = map(1:n) do i_o
+                np[:,i_n] == rp[:,i_o]
+              end
+              @fact any(founds) --> true
+            end
           end
         end
       end

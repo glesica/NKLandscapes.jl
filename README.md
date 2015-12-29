@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/glesica/NKLandscapes.jl.svg?branch=master)](https://travis-ci.org/glesica/NKLandscapes.jl)
-
 [![codecov.io](https://codecov.io/github/glesica/NKLandscapes.jl/coverage.svg?branch=master)](https://codecov.io/github/glesica/NKLandscapes.jl?branch=master)
 
 # NKLandscapes.jl

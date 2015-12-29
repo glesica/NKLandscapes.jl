@@ -2,17 +2,14 @@ language: julia
 os:
   - linux
   - osx
-sudo: required
 julia:
   - release
   - nightly
 notifications:
   email: false
+after_success:
+  - julia -e 'cd(Pkg.dir("MyPkg")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
 # uncomment the following lines to override the default test script
 #script:
 #  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 #  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NK"); Pkg.test("NK"; coverage=true)'
-before_install:
-      - sudo pip install codecov
-after_success:
-      - codecov

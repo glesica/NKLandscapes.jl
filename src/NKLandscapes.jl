@@ -6,6 +6,7 @@ include("Population.jl")
 include("Neighbors.jl")
 include("Walks.jl")
 include("Selection.jl")
+include("Mutation.jl")
 
 end
 

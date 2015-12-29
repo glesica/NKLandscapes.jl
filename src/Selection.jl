@@ -1,6 +1,6 @@
 import Base.Random: rand
 
-export propsel
+export propsel, propsel!
 
 # Create a new population through proportional selection on the given
 # population using the algorithm found in:

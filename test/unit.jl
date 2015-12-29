@@ -127,8 +127,8 @@ facts("NKLandscapes.jl") do
         end
       end
 
-      context("Selection") do
-        for n = [1, 10, 100]
+      for n = [1, 10, 100]
+        context("Selection") do
           context("Should result in a population of the same size") do
             rp = rand(Population, l, n)
             np = propsel(rp, l)
@@ -144,6 +144,26 @@ facts("NKLandscapes.jl") do
               end
               @fact any(founds) --> true
             end
+          end
+
+          context("Should create a new population when using propsel") do
+            rp = rand(Population, l, n)
+            np = propsel(rp, l)
+            @fact is(rp, np) --> false
+          end
+        end
+
+        context("Mutation") do
+          context("Should result in a population of the same size") do
+            rp = rand(Population, l, n)
+            np = bwmutate(rp, l, 1.0)
+            @fact popsize(np) --> n
+          end
+
+          context("Should mutate population members") do
+            rp = rand(Population, l, n)
+            np = bwmutate(rp, l, 1.0)
+            @fact np --> not(rp)
           end
         end
       end

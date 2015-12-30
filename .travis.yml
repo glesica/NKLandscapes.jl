@@ -7,9 +7,9 @@ julia:
   - nightly
 notifications:
   email: false
+before_install:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 after_success:
   - julia -e 'cd(Pkg.dir("NKLandscapes")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
-# uncomment the following lines to override the default test script
-#script:
-#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-#  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NK"); Pkg.test("NK"; coverage=true)'
+script:
+  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("NKLandscapes"); Pkg.test("NKLandscapes"; coverage=true)'

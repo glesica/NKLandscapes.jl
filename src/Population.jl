@@ -25,9 +25,9 @@ popsize(p::Population) = size(p)[2]
 # Return a vector of fitness values where the ith element in the vector
 # corresponds to the fitness of the ith column of the population matrix.
 function popfits(p::Population, ls::Landscape)
-  count = popsize(p)
-  fs = zeros(Float64, count)
-  for i = 1:count
+  n = popsize(p)
+  fs = zeros(Float64, n)
+  for i = 1:n
     fs[i] = fitness(p[:,i], ls)
   end
   fs

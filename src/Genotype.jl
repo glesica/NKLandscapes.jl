@@ -40,7 +40,7 @@ end
 function fitness(g::Genotype, ls::Landscape)
   # TODO: Do we include the fake zeros in the sum or just let the fitness range lower?
   check_genotype_size(g, ls)
-  map(1:length(g)) do i
+  map(1:ls.n) do i
     contrib(i, g, ls)
   end |> mean
 end

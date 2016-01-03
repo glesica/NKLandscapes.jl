@@ -10,8 +10,12 @@ typealias Links Matrix{Int64}
 # `true`, then links will be generated between a locus `i` and its `k / 2`
 # neighbors to either side, assuming a periodic boundary at the ends of the
 # array.
+#
 # Each set of links is a column within the resulting array. There is one
-# column for each locus in the genotype.
+# column for each locus in the genotype. The columns are actually `k + 1`
+# long (there are `k + 1` rows in the matrix) because the first row
+# points back to the locus whose links are defined by that column. So, the
+# first row is just the vector `[1..n]`.
 function makelinks(n::Int64, k::Int64, near::Bool)
   if k >= n
     error("k must be strictly less than n")

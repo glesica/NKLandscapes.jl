@@ -5,7 +5,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() {
-    echo "Usage: ./runtests.sh {unit,kauffman,nowak} [{all,nightlies,releases}]"
+    echo "Usage: ./runtests.sh {unit,fastfunc,kauffman,nowak} [{all,nightlies,releases}]"
     echo ""
     echo "  Run the test suite specified by the first argument"
     echo "  in the environment (via Vagrant) specified by the"

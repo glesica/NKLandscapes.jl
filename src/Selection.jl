@@ -30,5 +30,5 @@ function propsel!(p::Population, ls::Landscape)
     end
   end
 
-  p = p[:,selected]
+  p[:,:] = p[:,selected]
 end

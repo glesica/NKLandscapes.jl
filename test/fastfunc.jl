@@ -67,3 +67,46 @@ for i = 1:8
   @assert isapprox(fits[i], fitsa[i]) "Expected $(fits[i]), found $(fitsa[i]) for $(i)th"
 end
 
+# NK.propsel(...)
+
+srand(0)
+newpop = NK.propsel(pop, ls)
+
+counts = zeros(Int64, 8)
+for i = 1:8
+  for j = 1:8
+    if newpop[:,i] == pop[:,j]
+      counts[j] += 1
+    end
+  end
+end
+@assert any(c -> c != 1, counts) "Expected a different population after selection"
+
+# NK.bwmutate(...)
+
+srand(0)
+trials = 1000
+mutprob = 0.1
+total = 0.0
+for _ = 1:trials
+  newpop = NK.bwmutate(pop, ls, mutprob)
+  total += (pop .!= newpop) |> sum
+end
+meanmuts = total / (trials * length(pop))
+@assert isapprox(mutprob, meanmuts, atol=mutprob / 10) "Expected $(mutprob) mutation rate, found $(meanmuts)"
+
+# NK.bsmutate(...)
+
+srand(0)
+newpop = NK.bsmutate(pop, ls)
+
+for i = 1:8
+  count = 0
+  for j = 1:ls.n
+    if newpop[j,i] != pop[j,i]
+      count += 1
+    end
+  end
+  @assert count == 1 "Expected 1 difference in $(pop[:,i]), $(newpop[:,i]), found $(count)"
+end
+

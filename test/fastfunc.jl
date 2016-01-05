@@ -80,7 +80,8 @@ for i = 1:8
     end
   end
 end
-@assert any(c -> c != 1, counts) "Expected a different population after selection"
+@assert any(c -> c > 1, counts) "Expected a different population after selection"
+@assert mean(fits) < mean(NK.popfits(newpop, ls)) "Expected greater mean fitness after selection"
 
 # NK.bwmutate(...)
 

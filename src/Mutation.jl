@@ -32,7 +32,7 @@ end
 @doc """bsmutate(p::Population, ls::Landscape)
 
 Return a new population with a single locus of each bitstring in the original
-population mutated (bit flipped if `ls.a == 2`.
+population mutated (bit flipped if `ls.a == 2`).
 """
 function bsmutate(p::Population, ls::Landscape)
   np = copy(p)

@@ -32,23 +32,25 @@ end
 @doc """bsmutate(p::Population, ls::Landscape)
 
 Return a new population with a single locus of each bitstring in the original
-population mutated (bit flipped if `ls.a == 2`).
+population mutated (bit flipped if `ls.a == 2`) with probability `mutprob`.
 """
-function bsmutate(p::Population, ls::Landscape)
+function bsmutate(p::Population, ls::Landscape, mutprob::Float64)
   np = copy(p)
-  bsmutate!(np, ls)
+  bsmutate!(np, ls, mutprob)
   return np
 end
 
 @doc """bsmutate(p::Population, ls::Landscape)
 
-Mutate a population in-place by mutating one locus of each bitstring in the
-population.
+Mutate a population in-place by mutating up to one locus of each bitstring in
+the population.
 """
-function bsmutate!(p::Population, ls::Landscape)
+function bsmutate!(p::Population, ls::Landscape, mutprob::Float64)
   for i = 1:popsize(p)
-    j = rand(1:ls.n)
-    p[j,i] = mutlocus(p[j,i], ls)
+    if rand() < mutprob
+      j = rand(1:ls.n)
+      p[j,i] = mutlocus(p[j,i], ls)
+    end
   end
 end
 

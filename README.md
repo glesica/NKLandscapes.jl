@@ -65,4 +65,5 @@ powerful workstation.
 
   * Implement all four Nowak and Krug random walk strategies.
   * Finish functional tests.
+  * Store fitnesses with population to avoid recomputing them.
 

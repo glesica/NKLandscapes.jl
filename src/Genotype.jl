@@ -32,7 +32,7 @@ end
 
 function fitness(g::Genotype, ls::NKqLandscape)
   check_genotype_size(g, ls)
-  (map(1:length(g)) do i
+  (map(1:ls.n) do i
     contrib(i, g, ls)
   end |> mean) / (ls.q - 1)
 end

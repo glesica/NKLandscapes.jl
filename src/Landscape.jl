@@ -117,3 +117,29 @@ show(io::Base.IO, l::NKpLandscape) = print(io, "NKpLandscape($(l.n), $(l.k), $(l
 function prob_neutral(l::NKpLandscape)
   l.p ^ 2 * (1 - l.k / (l.n - 1) * (1 - l.p ^ 2)) ^ (l.n - 1)
 end
+
+@doc """ fitrange(ls::Landscape)
+
+Returns a tuple of the min and max fitness for a landscape. Note that
+this only works if `a = 2` and it won't work for large values of `N`.
+"""
+function fitrange(ls::Landscape)
+  fmin = 1.0
+  fmax = 0.0
+  for g = [[bit == '1' ? 2 : 1 for bit in bin(n, ls.n)] for n in 0:2^ls.n-1]
+    f = fitness(g, ls)
+    if f < fmin
+      fmin = f
+    end
+    if f > fmax
+      fmax = f
+    end
+  end
+  return Float64[fmin, fmax]
+end
+
+function leastfit(ls::Landscape)
+end
+
+function mostfit(ls::Landscape)
+end

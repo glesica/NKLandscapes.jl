@@ -99,7 +99,7 @@ meanmuts = total / (trials * length(pop))
 # NK.bsmutate(...)
 
 srand(0)
-newpop = NK.bsmutate(pop, ls)
+newpop = NK.bsmutate(pop, ls, 1.0)
 
 for i = 1:8
   count = 0

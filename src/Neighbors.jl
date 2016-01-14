@@ -60,7 +60,8 @@ function neutral_neighbors(g::Genotype, ls::Landscape)
     i += 1
   end
   neutrals = fits .== f0
-  return nbrs[:,neutrals]
+  neutral_neighbors = nbrs[:,neutrals]
+  return neutral_neighbors[:,sortperm(rand(size(neutral_neighbors)[2]))]
 end
 
 # TODO: Test to make sure this works when there are no fitter neighbors.

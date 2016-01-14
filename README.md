@@ -10,6 +10,7 @@ fitness landscapes.
 
   * George Lesica (<george.lesica@umontana.edu>)
   * Alden Wright (<alden.wright@umontana.edu>)
+  * Cheyenne Laue (<cheyenne.laue@umontana.edu>)
 
 ## About NK Landscapes
 
@@ -31,6 +32,10 @@ including neutrality..
 NKLandscapes is listed in the Julia package index, so installation of the most
 recent release is as simple as `Pkg.add("NKLandscapes")`.
 
+The library is still under heavy development, and it has not (yet) been fully
+documented. We are making good progress, however, so many functions available
+already have documentation available when running in the Julia REPL.
+
 ## Tests
 
 If the package has been installed using Julia's package management tools, the
@@ -47,6 +52,7 @@ published results.
 The unit tests may be run with `./runtests.sh unit`. The functional tests may
 be run with `./runtests.sh SUITE` where `SUITE` is one of the following:
 
+  * fastfunc - some fast-running functional tests
   * `kauffman` - experiments from [1]
   * `nowak` - experiments from [2]
 

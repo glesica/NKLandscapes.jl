@@ -32,7 +32,7 @@ for b = [1, 2]
     for i = 1:LC
       l = NKLandscape(n, k, near=b == 1)
       g = rand(Genotype, l)
-      w = random_walk(g, l)
+      w = random_adaptive_walk(g, l)
       lengths[i] = w.length
       fitnesses[i] = w.fitnesses[end]
     end
@@ -63,7 +63,7 @@ for b = [1, 2]
       l = NKLandscape(n, k, near=b == 1)
       while length(found_opts) <= MAX_FOUND && since_last <= MAX_FAILS
         g = rand(Genotype, l)
-        w = random_walk(g, l)
+        w = random_adaptive_walk(g, l)
         opt = w.history[:,end]
         if !(opt in found_opts)
           push!(found_opts, opt)

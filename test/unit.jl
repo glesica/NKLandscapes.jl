@@ -5,10 +5,18 @@ srand(1)
 
 facts("NKLandscapes.jl") do
   landscapes = [
+    NKLandscape(10, 0),
     NKLandscape(10, 1),
     NKLandscape(10, 2),
+    NKLandscape(10, 3),
+    NKLandscape(10, 4),
+    NKLandscape(10, 5),
+    NKLandscape(10, 6),
+    NKLandscape(10, 7),
+    NKLandscape(10, 8),
+    NKLandscape(10, 9),
     NKqLandscape(10, 1, 2),
-    NKpLandscape(10, 1, 0.8),
+    NKpLandscape(10, 1, 0.90),
   ]
 
   for l = landscapes
@@ -36,7 +44,7 @@ facts("NKLandscapes.jl") do
               nbrs = neutral_neighbors(genotype, landscape)
               score = fitness(genotype, landscape)
               @fact size(nbrs)[1] --> landscape.n
-              @fact size(nbrs)[2] --> greater_than(0)
+              @fact size(nbrs)[2] --> greater_than_or_equal(0)
               for j = 1:size(nbrs)[2]
                 @fact fitness(nbrs[:,j], landscape) --> score
               end
@@ -49,7 +57,7 @@ facts("NKLandscapes.jl") do
         context("Fitter neighbors should all be fitter") do
           function test_fitter_neighbors(nbrs, landscape, score)
             @fact size(nbrs)[1] --> landscape.n
-            @fact size(nbrs)[2] --> greater_than(0)
+            @fact size(nbrs)[2] --> greater_than_or_equal(0)
             for j = 1:size(nbrs)[2]
               @fact fitness(nbrs[:,j], landscape) --> greater_than(score)
             end
@@ -67,29 +75,47 @@ facts("NKLandscapes.jl") do
 
         context("Fittest 1 neighbor should be the fittest neighbor") do
           nbrs = fitter_neighbors(g, l)
-          nbr1 = fittest_neighbor(g, l)
-          @fact nbr1 --> nbrs[:,end]
+          if length(nbrs) > 0
+            nbr1 = fittest_neighbor(g, l)
+            @fact nbr1 --> nbrs[:,end]
+          end
         end
 
         context("Adaptive walks") do
           function test_adaptive_walk(walk_function, genotype, landscape)
             walk = walk_function(genotype, landscape)
-            @fact walk.length --> greater_than(0)
+            @fact walk.length --> greater_than_or_equal(0)
             for i = 2:walk.length
-              @fact fitness(walk.history[:,i], landscape) --> greater_than(fitness(genotype, landscape))
+              @fact fitness(walk.history_list[:,i], landscape) --> greater_than(fitness(genotype, landscape))
             end
           end
 
           context("Random adaptive walk should terminate and move uphill") do
-            test_adaptive_walk(random_walk, g, l)
+            test_adaptive_walk(random_adaptive_walk, g, l)
           end
 
           context("Greedy adaptive walk should terminate and move uphill") do
-            test_adaptive_walk(greedy_walk, g, l)
+            test_adaptive_walk(greedy_adaptive_walk, g, l)
           end
 
           context("Reluctant adaptive walk should terminate and move uphill") do
-            test_adaptive_walk(reluctant_walk, g, l)
+            test_adaptive_walk(reluctant_adaptive_walk, g, l)
+          end
+        end
+
+        context("Neutral walks") do
+          function test_neutral_walk(walk_function, genotype, landscape)
+            walk = walk_function(genotype, landscape)
+            @fact walk.length --> greater_than_or_equal(0)
+            f = fitness(genotype, landscape)
+            for i = 1:walk.length
+              f0 = fitness(walk.history_list[:,i], landscape)
+              @fact f0 --> roughly(f)
+            end
+          end
+
+          context("Neutral walk should terminate and move sideways") do
+            test_neutral_walk(neutral_walk, g, l)
           end
         end
       end

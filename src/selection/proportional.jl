@@ -29,6 +29,10 @@ Conduct proportional selection in-place.
 function propsel!(p::Population, ls::Landscape)
   fs = popfits(p, ls)
   fmax = maximum(fs)
+  if fmax == 0
+    # all elements have fitness zero
+    return
+  end
 
   n = popsize(p)
   selected = zeros(Int64, n)

@@ -15,6 +15,7 @@ facts("NKLandscapes.jl") do
     NKLandscape(10, 7),
     NKLandscape(10, 8),
     NKLandscape(10, 9),
+    NKLandscape(10, 4; near=true),
     NKqLandscape(10, 1, 2),
     NKpLandscape(10, 1, 0.90),
   ]

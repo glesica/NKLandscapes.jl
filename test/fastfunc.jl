@@ -88,6 +88,24 @@ facts("NKLandscapes.jl fast functional tests") do
     @fact oldmean --> less_than(newmean) "Expected greater mean fitness after selection"
   end
 
+  context("NK.tournsel(...)") do
+    srand(0)
+    newpop = NK.tournsel(pop, ls, 8)
+
+    counts = zeros(Int64, 8)
+    for i = 1:8
+      for j = 1:8
+        if newpop[:,i] == pop[:,j]
+          counts[j] += 1
+        end
+      end
+    end
+    @fact any(c -> c > 1, counts) --> true "Expected a different population after selection"
+    oldmean = mean(fits)
+    newmean = mean(NK.popfits(newpop, ls))
+    @fact oldmean --> less_than(newmean) "Expected greater mean fitness after selection"
+  end
+
   context("NK.moransel(...)") do
     srand(0)
     newpop = NK.moransel(pop, ls, 8)

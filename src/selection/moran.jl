@@ -4,7 +4,7 @@ export moransel, moransel!
 
 function moransel(p::Population, ls::Landscape, iters::Int64)
   np = copy(p)
-  moransel!(np, ls)
+  moransel!(np, ls, iters)
   return np
 end
 

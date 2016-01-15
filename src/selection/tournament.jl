@@ -9,7 +9,7 @@ population. For now, we assume `p=1`, so the best individual in
 the tournament is selected as a member of the new population.
 Each tournament involves `k` members of the population.
 
-Note that sampling is done without replacement, so even if
+Note that sampling is done with replacement, so even if
 `k` is equal to the population size, there is no guarantee
 that every individual will participate in each tournament.
 

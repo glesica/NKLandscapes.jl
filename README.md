@@ -52,7 +52,8 @@ published results.
 The unit tests may be run with `./runtests.sh unit`. The functional tests may
 be run with `./runtests.sh SUITE` where `SUITE` is one of the following:
 
-  * fastfunc - some fast-running functional tests
+  * fastfunc - some fast-running functional tests, these are run automatically
+    with the unit tests
   * `kauffman` - experiments from [1]
   * `nowak` - experiments from [2]
 

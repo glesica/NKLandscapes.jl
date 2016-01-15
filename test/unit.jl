@@ -15,6 +15,7 @@ facts("NKLandscapes.jl") do
     NKLandscape(10, 7),
     NKLandscape(10, 8),
     NKLandscape(10, 9),
+    NKLandscape(10, 4; near=true),
     NKqLandscape(10, 1, 2),
     NKpLandscape(10, 1, 0.90),
   ]
@@ -36,6 +37,11 @@ facts("NKLandscapes.jl") do
           end
 
           test_neighbors(g, l)
+        end
+
+        context("Random neighbor should be a neighbor") do
+          g0 = random_neighbor(g, l)
+          @fact (g - g0) |> sum |> abs --> 1
         end
 
         if typeof(l) != NKLandscape
@@ -196,3 +202,6 @@ facts("NKLandscapes.jl") do
     end
   end
 end
+
+include("fastfunc.jl")
+

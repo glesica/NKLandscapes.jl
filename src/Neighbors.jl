@@ -59,9 +59,8 @@ function neutral_neighbors(g::Genotype, ls::Landscape)
     fits[i] = fitness(nbr, ls)
     i += 1
   end
-  neutrals = fits .== f0
-  neutral_neighbors = nbrs[:,neutrals]
-  return neutral_neighbors[:,sortperm(rand(size(neutral_neighbors)[2]))]
+  neutrals = [j for j = 1:count][fits .== f0] |> shuffle
+  return nbrs[:,neutrals]
 end
 
 # TODO: Test to make sure this works when there are no fitter neighbors.

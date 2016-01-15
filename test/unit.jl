@@ -5,8 +5,16 @@ srand(1)
 
 facts("NKLandscapes.jl") do
   landscapes = [
+    NKLandscape(10, 0),
     NKLandscape(10, 1),
     NKLandscape(10, 2),
+    NKLandscape(10, 3),
+    NKLandscape(10, 4),
+    NKLandscape(10, 5),
+    NKLandscape(10, 6),
+    NKLandscape(10, 7),
+    NKLandscape(10, 8),
+    NKLandscape(10, 9),
     NKqLandscape(10, 1, 2),
     NKpLandscape(10, 1, 0.90),
   ]
@@ -99,8 +107,10 @@ facts("NKLandscapes.jl") do
           function test_neutral_walk(walk_function, genotype, landscape)
             walk = walk_function(genotype, landscape)
             @fact walk.length --> greater_than_or_equal(0)
-            for i = 2:walk.length
-              @fact fitness(walk.history_list[:,i], landscape) --> roughly(fitness(genotype, landscape))
+            f = fitness(genotype, landscape)
+            for i = 1:walk.length
+              f0 = fitness(walk.history_list[:,i], landscape)
+              @fact f0 --> roughly(f)
             end
           end
 

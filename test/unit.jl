@@ -39,6 +39,11 @@ facts("NKLandscapes.jl") do
           test_neighbors(g, l)
         end
 
+        context("Random neighbor should be a neighbor") do
+          g0 = random_neighbor(g, l)
+          @fact (g - g0) |> sum |> abs --> 1
+        end
+
         if typeof(l) != NKLandscape
           context("Neutral neighbors should have the same fitness") do
             function test_neutral_neighbors(genotype, landscape)

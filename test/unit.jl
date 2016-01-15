@@ -196,3 +196,6 @@ facts("NKLandscapes.jl") do
     end
   end
 end
+
+include("fastfunc.jl")
+

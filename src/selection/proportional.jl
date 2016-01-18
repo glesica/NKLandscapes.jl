@@ -22,6 +22,12 @@ function propsel(p::Population, ls::Landscape)
   return np
 end
 
+function propsel(p::MetaPopulation, ls::Landscape)
+  np = copy(p)
+  propsel!(np, ls)
+  return np
+end
+
 @doc """propsel!(p::Population, ls::Landscape)
 
 Conduct proportional selection in-place.
@@ -47,4 +53,10 @@ function propsel!(p::Population, ls::Landscape)
   end
 
   p[:,:] = p[:,selected]
+end
+
+function propsel!(p::MetaPopulation, ls::Landscape)
+  for ip = 1:popct(p)
+    propsel!(p[:,:,ip], ls)
+  end
 end

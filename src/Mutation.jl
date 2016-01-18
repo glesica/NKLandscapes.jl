@@ -15,6 +15,14 @@ function bwmutate(p::Population, ls::Landscape, mutprob::Float64)
   return np
 end
 
+@doc """bwmutate(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+"""
+function bwmutate(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+  np = copy(p)
+  bwmutate!(np, ls, mutprob)
+  return np
+end
+
 @doc """bwmutate!(p::Population, ls::Landscape, mutprob::Float64)
 
 Mutate the population in-place by mutating each locus with probability
@@ -29,12 +37,28 @@ function bwmutate!(p::Population, ls::Landscape, mutprob::Float64)
   end
 end
 
+@doc """bwmutate!(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+"""
+function bwmutate!(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+  for ip = 1:popct(p)
+    bwmutate!(p[:,:,ip], ls, mutprob)
+  end
+end
+
 @doc """bsmutate(p::Population, ls::Landscape)
 
 Return a new population with a single locus of each bitstring in the original
 population mutated (bit flipped if `ls.a == 2`) with probability `mutprob`.
 """
 function bsmutate(p::Population, ls::Landscape, mutprob::Float64)
+  np = copy(p)
+  bsmutate!(np, ls, mutprob)
+  return np
+end
+
+@doc """bsmutate(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+"""
+function bsmutate(p::MetaPopulation, ls::Landscape, mutprob::Float64)
   np = copy(p)
   bsmutate!(np, ls, mutprob)
   return np
@@ -51,6 +75,14 @@ function bsmutate!(p::Population, ls::Landscape, mutprob::Float64)
       j = rand(1:ls.n)
       p[j,i] = mutlocus(p[j,i], ls)
     end
+  end
+end
+
+@doc """bsmutate!(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+"""
+function bsmutate!(p::MetaPopulation, ls::Landscape, mutprob::Float64)
+  for ip = 1:popct(p)
+    bsmutate!(p[:,:,ip], ls, mutprob)
   end
 end
 

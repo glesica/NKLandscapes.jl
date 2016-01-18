@@ -134,7 +134,7 @@ facts("NKLandscapes.jl") do
             @fact size(p)[2] --> n
           end
 
-          for n = [1, 10, 100]
+          for n = [1, 10]
             rp = rand(Population, l, n)
             test_population_size(rp, l, n)
             zp = zeros(Population, l, n)
@@ -150,11 +150,52 @@ facts("NKLandscapes.jl") do
             end
           end
 
-          for n = [1, 10, 100]
+          for n = [1, 10]
             rp = rand(Population, l, n)
             test_population_fitnesses(rp, l)
             zp = zeros(Population, l, n)
             test_population_fitnesses(zp, l)
+          end
+        end
+      end
+
+      context("Meta populations") do
+        context("Should be the correct size") do
+          function test_meta_population_size(p::MetaPopulation, l::Landscape, n, k)
+            @fact popsize(p) --> n
+            @fact popct(p) --> k
+            @fact size(p)[1] --> l.n
+            @fact size(p)[2] --> n
+            @fact size(p)[3] --> k
+          end
+
+          for n = [1, 10]
+            for k = [1, 10]
+              rp = rand(MetaPopulation, l, n, k)
+              test_meta_population_size(rp, l, n, k)
+              zp = zeros(MetaPopulation, l, n, k)
+              test_meta_population_size(zp, l, n, k)
+            end
+          end
+        end
+
+        context("Should compute fitness") do
+          function test_meta_population_fitnesses(p::MetaPopulation, l::Landscape)
+            fs = popfits(p, l)
+            for ip = 1:popct(p)
+              for ig = 1:popsize(p)
+                @fact fs[ig,ip] --> fitness(p[:,ig,ip], l)
+              end
+            end
+          end
+
+          for n = [1, 10]
+            for k = [1, 10]
+              rp = rand(MetaPopulation, l, n, k)
+              test_meta_population_fitnesses(rp, l)
+              zp = zeros(MetaPopulation, l, n, k)
+              test_meta_population_fitnesses(zp, l)
+            end
           end
         end
       end
@@ -195,6 +236,22 @@ facts("NKLandscapes.jl") do
           context("Should mutate population members") do
             rp = rand(Population, l, n)
             np = bwmutate(rp, l, 1.0)
+            @fact np --> not(rp)
+          end
+        end
+
+        context("Migration") do
+          context("Should move genotypes between populations") do
+            rp = rand(MetaPopulation, l, n, 4)
+            np = migrate(rp, 1.0, n / 2.0 |> ceil |> Int)
+            @fact np --> not(rp)
+          end
+        end
+
+        context("Linear migration") do
+          context("Should move genotypes between populations") do
+            rp = rand(MetaPopulation, l, n, 4)
+            np = linmigrate(rp, 1.0, n / 2.0 |> ceil |> Int)
             @fact np --> not(rp)
           end
         end

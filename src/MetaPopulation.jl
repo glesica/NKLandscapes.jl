@@ -34,7 +34,7 @@ consist of `popsize` individuals and there will be `popct` individual
 populations.
 """
 function zeros(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64)
-  p = zeros(Int64, ls.n, count)
+  p = zeros(Int64, ls.n, popsize, popct)
   for ip = 1:popct
     for ig = 1:popsize
       p[:,ig,ip] = zeros(Genotype, ls)

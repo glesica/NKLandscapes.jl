@@ -59,7 +59,8 @@ function neutral_neighbors(g::Genotype, ls::Landscape)
     fits[i] = fitness(nbr, ls)
     i += 1
   end
-  neutrals = [j for j = 1:count][fits .== f0] |> shuffle
+  #neutrals = [j for j = 1:count][fits .== f0] |> shuffle
+  neutrals = filter(i->isapprox(fitness(nbrs[:,i],ls),f0),[j for j = 1:count])
   return nbrs[:,neutrals]
 end
 

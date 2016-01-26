@@ -64,7 +64,7 @@ for b = [1, 2]
       while length(found_opts) <= MAX_FOUND && since_last <= MAX_FAILS
         g = rand(Genotype, l)
         w = random_adaptive_walk(g, l)
-        opt = w.history[:,end]
+        opt = w.history_list[:,end]
         if !(opt in found_opts)
           push!(found_opts, opt)
           since_last = 0

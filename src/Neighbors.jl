@@ -1,4 +1,4 @@
-using Distributions
+#using Distributions
 
 export all_neighbors, number_neighbors, random_neighbor, neutral_neighbors, fitter_neighbors, fittest_neighbors, fittest_neighbor
 
@@ -47,7 +47,7 @@ function random_neighbor(g::Genotype, ls::Landscape)
 end
 
 # Returns a matrix of all neutral (equal fitness) neighbors as the columns of a
-# matrix.
+# matrix.  The neighbors are in random order
 function neutral_neighbors(g::Genotype, ls::Landscape)
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
@@ -60,7 +60,8 @@ function neutral_neighbors(g::Genotype, ls::Landscape)
     i += 1
   end
   #neutrals = [j for j = 1:count][fits .== f0] |> shuffle
-  neutrals = filter(i->isapprox(fitness(nbrs[:,i],ls),f0),[j for j = 1:count])
+  #neutrals = filter(i->isapprox(fitness(nbrs[:,i],ls),f0),[j for j = 1:count])
+  neutrals = filter(i->isapprox(fits[i],f0),[j for j = 1:count]) |> shuffle
   return nbrs[:,neutrals]
 end
 
@@ -81,6 +82,26 @@ function fitter_neighbors(g::Genotype, ls::Landscape)
   betters = fits .> f0
   nbrs = nbrs[:,betters]
   fits = fits[betters]
+  return nbrs[:,sortperm(fits)]
+end
+
+# Returns a matrix of all fitter or equal neighbors as the columns of a matrix, sorted
+# from lowest fitness (left) to highest fitness (right).
+function fitter_or_equal_neighbors(g::Genotype, ls::Landscape)
+  f0 = fitness(g, ls)
+  count = number_neighbors(g, ls)
+  nbrs = zeros(Int64, ls.n, count) # Columns are genotypes
+  fits = zeros(Float64, count)
+  i = 1
+  for nbr = neighbors(g, ls)
+    nbrs[:,i] = nbr
+    fits[i] = fitness(nbr, ls)
+    i += 1
+  end
+  betters_neutrals = filter(i->(fits[i]>=f0)||(isapprox(fits[i],f0)),[j for j = 1:count])
+  betters = fits .> f0
+  nbrs = nbrs[:,betters_neutrals]
+  fits = fits[betters_neutrals]
   return nbrs[:,sortperm(fits)]
 end
 

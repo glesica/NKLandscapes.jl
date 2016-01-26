@@ -1,6 +1,6 @@
 import Base.show
 
-using Distributions
+#using Distributions
 
 export Landscape, NKLandscape, NKqLandscape, NKpLandscape, prob_neutral
 

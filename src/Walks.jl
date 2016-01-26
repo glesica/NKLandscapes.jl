@@ -1,4 +1,5 @@
-export natural_adaptive_walk, random_adaptive_walk, greedy_adaptive_walk, reluctant_adaptive_walk, neutral_walk
+export natural_adaptive_walk, random_adaptive_walk, greedy_adaptive_walk, reluctant_adaptive_walk, neutral_walk, neutral_or_fitter_walk,
+  fitter_then_neutral_walk
 
 @doc """A record of the path of an adaptive or random walk.
 
@@ -125,6 +126,93 @@ function neutral_walk(g::Genotype, l::Landscape)
     f0 = fitness(g0, l)
     push!(w.history_set, g0)
     add_step!(w, g0, f0)
+  end
+  return w
+end
+
+
+@doc """A walk in which a random neighbor is chosen from the set of
+fitter or equal neighbors at each step. Note that this walk is equivalent
+to a random adaptive walk for an NKLandscape because the likelihood
+of equal fitness is vanishingly small for an NKLandsape.
+
+To avoid cycles, this walk will not revisit genotypes at the same fitness
+level. It uses the `history_set` attribute of the `Walk` type to enforce 
+this condition.
+"""
+function neutral_or_fitter_walk(g::Genotype, l::Landscape)
+  g0 = g
+  f0 = fitness(g0, l)
+  #println("f0:",f0,"  g0:",reshape(g0,1,length(g0)))
+  w = Walk(:neutral, g0, f0)
+  while true
+    nbrs = fitter_or_equal_neighbors(g0, l)
+    if length(nbrs) == 0
+      break
+    end
+    i = 1
+    g1 = nbrs[:,i]
+    f1 = fitness(g1, l)
+    while f1 == f0 && i < size(nbrs)[2] && g1 in w.history_set
+      i += 1
+      g1 = nbrs[:,i]
+      f1 = fitness(g1, l)
+    end
+    #println("f1:",f0,"  g1:",reshape(g1,1,length(g1)))
+    if i >= size(nbrs)[2]
+      break
+    end
+    if f1 > f0
+      empty!(w.history_set)   
+    end
+    push!(w.history_set, g1)
+    add_step!(w, g1, f1)
+    g0 = g1
+    f0 = f1
+  end
+  return w
+end
+
+@doc """A walk in which a random fitter neighbor is chosen if there is one.
+If there is no fitter neighbor, then a random neutral neighbor is chosen.
+Note that this walk is equivalent to a random adaptive walk for an NKLandscape 
+because the likelihood of equal fitness is vanishingly small for an NKLandsape.
+
+To avoid cycles, this walk will not revisit genotypes at the same fitness
+level. It uses the `history_set` attribute of the `Walk` type to enforce 
+this condition.
+"""
+function fitter_then_neutral_walk(g::Genotype, l::Landscape)
+  g0 = g
+  f0 = fitness(g0, l)
+  w = Walk(:neutral, g0, f0)
+  while true
+    fnbrs = fitter_neighbors(g0, l)
+    if length(fnbrs) > 0
+      g1 = fnbrs[:,rand(1:end)]
+      f1 = fitness(g1, l)
+      empty!(w.history_set)
+    else
+      nnbrs = neutral_neighbors(g0, l)
+      if length(nnbrs) == 0
+        break
+      end
+      i = 1
+      g1 = nnbrs[:,i]
+      f1 = fitness(g1, l)
+      while i < size(nnbrs)[2] && g1 in w.history_set
+        i += 1
+        g1 = nnbrs[:,i]
+        f1 = fitness(g1, l)
+      end
+      if i >= size(nnbrs)[2]
+        break
+      end
+    end
+    push!(w.history_set, g1)
+    add_step!(w, g1, f1)
+    g0 = g1
+    f0 = f1
   end
   return w
 end

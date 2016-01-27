@@ -49,7 +49,7 @@ println("Number of Optima")
 for b = [1, 2]
   println(BOUNDARIES[b], " Interactions")
   println("N\tK\tμ\tσ")
-  for (n, k) = PAIRS[1:9]
+  for (n, k) = PAIRS[1:9]  # Only runs tests for N = 8 and N = 16.  Modify to run more tests (time consuming).
     if n == k
       k = k - 1
       if b == 1
@@ -64,7 +64,7 @@ for b = [1, 2]
       while length(found_opts) <= MAX_FOUND && since_last <= MAX_FAILS
         g = rand(Genotype, l)
         w = random_adaptive_walk(g, l)
-        opt = w.history[:,end]
+        opt = w.history_list[:,end]
         if !(opt in found_opts)
           push!(found_opts, opt)
           since_last = 0

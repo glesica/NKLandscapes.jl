@@ -1,4 +1,8 @@
-
+@doc """ Compares the lengths and maximum fitnesses of random, greedy, and reluctant adaptive walks.
+Outputs a table of means and standard deviations for these walks.
+The parameters shown in the table are set in compare_walks_driver.jl.
+See compare_walks_driver.jl for information on how to run on multiple cores.
+"""
 @everywhere immutable Job
   trial::Int64
   n::Int64

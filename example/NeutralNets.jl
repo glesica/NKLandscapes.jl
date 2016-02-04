@@ -15,10 +15,10 @@ An integer representation of genotypes is used extensively.  The
 The following steps are suggested for the analysis of the connected approximately
 neutral networks of an NK landscape.
    > l = NKLandscape(18,4)   # constructs the landscape
-   > fa = fitness_array(l)   # computes all fitness and stores them in array fa (computationall expensive)
+   > fa = fitness_array(l)   # computes all fitness and stores them in array fa (computationally expensive)
    > fl = fitness_levels_array(l,fa,20)  # fl is an array of fitness levels indexed on integer genotypes
    > FL = list_neutral_nets(l,fl)   # FL is a list of all connected neutral nets
-   > summarize(FL,20)
+   > print_summary(summary_list(FL,20))
 
 TO DO:  interpret the output of "summarize".  
 
@@ -179,17 +179,17 @@ function list_neutral_nets(l::Landscape,fitness_levels::Array{Int,1})
   end
   nn_list = map(x->(x,C[x],fitness_levels[x+1]), keys(C))
   sort!(nn_list,lt=(x,y)->x[2]<y[2])   # sort by size of neutral net
-  return nn_list,S,C
+  return nn_list
 end
 
-function summarize(nn_list,num_intervals)
+function summary_list(nn_list,num_intervals)
   fit_increment = 1.0/num_intervals
-  nn3 = map(x->x[3],nn_list[1])
+  nn3 = map(x->x[3],nn_list)
   lb = minimum(nn3)
   ub = maximum(nn3)
   summary = []
   for i = lb:ub
-    filtered_nn = [y[2] for y in filter(x->x[3]==i,nn_list[1])]
+    filtered_nn = [y[2] for y in filter(x->x[3]==i,nn_list)]
     if length(filtered_nn) > 0
       max_nn = maximum(filtered_nn)
       sum_nn = sum(filtered_nn)
@@ -199,3 +199,9 @@ function summarize(nn_list,num_intervals)
   return summary
 end
 
+function print_summary(summary)
+  @printf("fit lev\tfit_lb\t total count\t   max count\tpct max\n")
+  for s in summary
+    @printf("%2d\t%.3f\t%12d\t%12d\t%.5f\n",s[1],s[2],convert(Int,s[3]),convert(Int,s[4]),s[5])
+  end
+end

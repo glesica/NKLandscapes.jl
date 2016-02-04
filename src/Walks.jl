@@ -1,5 +1,5 @@
 export natural_adaptive_walk, random_adaptive_walk, greedy_adaptive_walk, reluctant_adaptive_walk, neutral_walk, neutral_or_fitter_walk,
-  fitter_then_neutral_walk
+  fitter_then_neutral_walk, fitness_range_walk
 
 @doc """A record of the path of an adaptive or random walk.
 
@@ -104,11 +104,13 @@ equality.
 
 To avoid cycles, this walk will not revisit genotypes. It uses the
 `history_set` attribute of the `Walk` type to enforce this condition.
+count_limit is an upper bound on the number of steps.
 """
-function neutral_walk(g::Genotype, l::Landscape)
+function neutral_walk(g::Genotype, l::Landscape, count_limit=0::Int64)
   g0 = g
   f0 = fitness(g0, l)
   w = Walk(:neutral, g0, f0)
+  count = 0  # step counter
   while true
     nbrs = neutral_neighbors(g0, l)
     if length(nbrs) == 0
@@ -126,10 +128,52 @@ function neutral_walk(g::Genotype, l::Landscape)
     f0 = fitness(g0, l)
     push!(w.history_set, g0)
     add_step!(w, g0, f0)
+    count += 1
+    if count_limit > 0 && count >= count_limit
+      break
+    end
   end
   return w
 end
 
+@doc """An approximatly neutral walk in which a random neighbor whose fitness
+is between lower_bound and upper_bound (inclusive)  is chosen at each step. 
+This walk is suitable for generating an approximately neutral walk
+with a `NKLandscape` because it requires exact fitness equality.
+
+To avoid cycles, this walk will not revisit genotypes. It uses the
+`history_set` attribute of the `Walk` type to enforce this condition.
+count_limit is an upper bound on the number of steps.
+"""
+function fitness_range_walk(g::Genotype, l::Landscape,  lower_bound::Float64, upper_bound::Float64, count_limit::Int64=0)
+  g0 = g
+  f0 = fitness(g0, l)
+  w = Walk(:neutral, g0, f0)
+  count = 0  # step counter
+  while true
+    nbrs = fitness_range_neighbors(g0, l, lower_bound, upper_bound )
+    if length(nbrs) == 0
+      break
+    end
+    i = 1
+    g0 = nbrs[:,i]
+    while i < size(nbrs)[2] && g0 in w.history_set
+      i += 1
+      g0 = nbrs[:,i]
+    end
+    if i >= size(nbrs)[2]
+      break
+    end
+    f0 = fitness(g0, l)
+    push!(w.history_set, g0)
+    add_step!(w, g0, f0)
+    count += 1
+    if count_limit > 0 && count >= count_limit
+      break
+    end
+  end
+  return w
+end
 
 @doc """A walk in which a random neighbor is chosen from the set of
 fitter or equal neighbors at each step. Note that this walk is equivalent

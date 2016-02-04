@@ -1,6 +1,7 @@
 #using Distributions
 
-export all_neighbors, number_neighbors, random_neighbor, neutral_neighbors, fitter_neighbors, fittest_neighbors, fittest_neighbor
+export all_neighbors, number_neighbors, random_neighbor, neutral_neighbors, fitter_neighbors, fittest_neighbors, fittest_neighbor,
+  fitter_or_equal_neighbors, fitness_range_neighbors
 
 function neighbors(g::Genotype, ls::Landscape)
   # TODO: Figure out if `Task`s will be GC'd on a `break`.
@@ -99,9 +100,33 @@ function fitter_or_equal_neighbors(g::Genotype, ls::Landscape)
     i += 1
   end
   betters_neutrals = filter(i->(fits[i]>=f0)||(isapprox(fits[i],f0)),[j for j = 1:count])
-  betters = fits .> f0
   nbrs = nbrs[:,betters_neutrals]
   fits = fits[betters_neutrals]
+  return nbrs[:,sortperm(fits)]
+end
+
+# Returns a matrix of all neighbors whose fitness is less than or equal to the upper bound
+#   and is greater than or equal to the lower bound (inclusive).
+#   the result is stored as the columns of a matrix, sorted
+#   from lowest fitness (left) to highest fitness (right).
+function fitness_range_neighbors(g::Genotype, ls::Landscape, lower_bound::Float64, upper_bound::Float64)
+  const eps = 1E-9
+  f0 = fitness(g, ls)
+  count = number_neighbors(g, ls)
+  nbrs = zeros(Int64, ls.n, count) # Columns are genotypes
+  fits = zeros(Float64, count)
+  i = 1
+  for nbr = neighbors(g, ls)
+    nbrs[:,i] = nbr
+    fits[i] = fitness(nbr, ls)
+    i += 1
+  end
+  function filter_funct(i)
+    return  (fits[i]>=lower_bound) && (fits[i]<upper_bound-eps) 
+  end
+  selected = filter(filter_funct, [j for j = 1:count])
+  nbrs = nbrs[:,selected]
+  fits = fits[selected]
   return nbrs[:,sortperm(fits)]
 end
 

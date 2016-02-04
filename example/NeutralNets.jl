@@ -1,4 +1,28 @@
-# Investigate the properties of the connected neutral networks of an NKqLandscape
+@doc """ Enumerates all connected neutral networks for NKqLandscapes and
+   all approximately neutral networks for NKLandscapes, and summarizes
+   their properties.
+The objective is to see if there are "giant" connected neutral networks
+   that contain almost all genotypes at a given fitness level as predicted
+   by the "percolation" model of Sergey Gavrilets for uncorrelated
+   landscapes.  (Reference needed.)
+An integer representation of genotypes is used extensively.  The
+   functions "genotype_to_int" and "int_to_genotype" convert between
+   the integer representation and the array representation used elsewhere
+   in NKLandscapes.jl.  If the arity of the landscape is 2, then the
+   integer representation can be considered as a bit-string representation,
+   and some functions require that the arity of the landscape is 2.
+
+The following steps are suggested for the analysis of the connected approximately
+neutral networks of an NK landscape.
+   > l = NKLandscape(18,4)   # constructs the landscape
+   > fa = fitness_array(l)   # computes all fitness and stores them in array fa (computationall expensive)
+   > fl = fitness_levels_array(l,fa,20)  # fl is an array of fitness levels indexed on integer genotypes
+   > FL = list_neutral_nets(l,fl)   # FL is a list of all connected neutral nets
+   > summarize(FL,20)
+
+TO DO:  interpret the output of "summarize".  
+
+"""
 include("../src/NKLandscapes.jl")
 using NKLandscapes
 using DataStructures
@@ -28,20 +52,6 @@ function ifitness(ig::Int64,l::Landscape)
   return fitness(int_to_genotype(ig,l),l)
 end
 
-@doc """ Returns the sequence of integer genotypes of a neutral walk starting at genotype g
-"""
-function neutral_walk_to_ints(g::Genotype, l::Landscape )
-  w = neutral_walk(g,l)
-  return map(x->genotype_to_int(x,l), [w.history_list[:,i] for i = 1:size(w.fitnesses)[1]])
-end
-
-@doc """ Returns the integer genotypes of the neutral neighbors of genotype g
-"""
-function neutral_neighbors_to_ints(g::Genotype, l::Landscape )
-  nbrs = neutral_neighbors(g,l)
-  return map(x->genotype_to_int(x,l), [nbrs[:,i] for i = 1:size(nbrs)[2]])
-end
-
 function add_ints_to_disjoint_sets!(S::IntDisjointSets,int_list::Array{Any,1})
   for i = 2:length(int_list)
     union!(S,int_list[i-1]+1,int_list[i]+1)
@@ -49,37 +59,81 @@ function add_ints_to_disjoint_sets!(S::IntDisjointSets,int_list::Array{Any,1})
   S
 end
 
-@doc """ Returns an IntDisjointSets representation of the neutral nets of the landscape
-"""
-function build_neutral_nets(l::Landscape)
-  S = IntDisjointSets(l.a^l.n)
-  for i = 0:(l.a^l.n-1)
-    if (find_root(S,i+1) != i+1) || (S.ranks[i+1] > 0)
-      continue   # i is already in S
-    end
-    nbrs= neutral_net(i,l)
-    if length(nbrs) > 0
-      push!(nbrs,i)  # add i to nbrs
-    else
-      nbrs = Int64[i]
-    end
-    add_ints_to_disjoint_sets!(S,nbrs)
+function fitness_array(l::Landscape)
+  fitness_array = zeros(Float64,l.a^l.n)
+  for i = 0:l.a^l.n-1
+    fitness_array[i+1] = ifitness(i,l)
   end
-  return S
+  return fitness_array
 end
 
-@doc """ Returns a list of the integer genotypes in the connected neutral net of integer genotype ig
-Does a depath-first traversal of the neutral net
-"""
-function neutral_net(ig::Int,l::Landscape)
-  if  ig >= l.a^l.n
-   error("integer genotype is too large for landscape") 
+# fitness_levels is an array of the fitness level of each integer genotype of the landscape
+# Assumes that the interval [0,1] is subdivided into  num_intervals  subintervals.
+# fitness_levels[ig] is the index of the interval for integer genotype ig
+function fitness_levels_array(l::Landscape,num_intervals::Int)
+  fitness_levels = zeros(Int64,l.a^l.n)
+  if typeof(l)==NKLandscapes.NKqLandscape
+    eps_inc = eps()
+  else
+    eps_inc = 0.0
   end
-  if ig < 0
-   error("integer genotype is negative") 
+  for i = 0:l.a^l.n-1
+    fitness_levels[i+1] = floor(Int,(ifitness(i,l)+eps_inc)*num_intervals)
   end
+  return fitness_levels
+end
+
+# fitness_levels is an array of the fitness level of each integer genotype of the landscape
+# Assumes that the interval [0,1] is subdivided into  num_intervals  subintervals.
+# fitness_levels[ig] is the index of the interval for integer genotype ig
+function fitness_levels_array(l::Landscape,fa::Array{Float64,1},num_intervals::Int)
+  fitness_levels = zeros(Int64,l.a^l.n)
+  if typeof(l)==NKLandscapes.NKqLandscape
+    eps_inc = eps()
+  else
+    eps_inc = 0.0
+  end
+  for i = 0:l.a^l.n-1
+    fitness_levels[i+1] = floor(Int,(fa[i+1]+eps_inc)*num_intervals)
+  end
+  return fitness_levels
+end
+
+function count_fitness_levels(l::Landscape,num_intervals::Int)
+  fit_levels = fitness_levels_array(l,num_intervals)
+  counts = zeros(Int64,num_intervals)
+  for i = 0:l.a^l.n-1
+    counts[fit_levels[i+1]] += 1
+  end
+  return counts
+end
+
+function count_fitness_levels(l::Landscape,fl::Array{Any,1},num_intervals::Int)
+  counts = zeros(Int64,num_intervals)
+  for i = 0:l.a^l.n-1
+    counts[fl[i+1]] += 1
+  end
+  return counts
+end
+
+# assumes landscape l has arity 2, i. e.,  l.a==2.
+function neighbors( ig::Int, l::Landscape )
+  @assert l.a == 2
+  nbrs_list = zeros(Int,l.n)
+  single_bit = convert(UInt64,0x1)
+  for i = 0:l.n-1
+    #@printf("%#06X\n",single_bit)
+    nbrs_list[i+1] = ig $ single_bit
+    single_bit <<= 1
+  end
+  nbrs_list
+end
+
+# fitness_levels is an array of the fitness level of each integer genotype of the landscape
+function neutral_net(ig::Int,l::Landscape,fitness_levels::Array{Int,1})
+  @assert l.a == 2
   ig0 = ig
-  f0 = ifitness(ig0,l)
+  f0 = fitness_levels[ig+1]
   closed = Set()
   stack = Stack(Int)
   push!(stack,ig0)
@@ -87,7 +141,7 @@ function neutral_net(ig::Int,l::Landscape)
     ig = pop!(stack)
     if !in(ig,closed)
       push!(closed,ig)
-      nbrs = neutral_neighbors_to_ints(int_to_genotype(ig,l),l)
+      nbrs = filter(n->fitness_levels[n+1]==f0,neighbors(ig,l))
       for n in nbrs
         push!(stack,n)
       end
@@ -95,48 +149,53 @@ function neutral_net(ig::Int,l::Landscape)
   end
   return collect(closed)
 end
-
-@doc """ Returns a triple where the first element nn_list of the triple is a list of all connected neutral 
-   networks of the landscape.
-Each neutral net of nn_list is represented by a triple whose elements are:
-   1)  an integer genotype representative of the network
-   2)  the number of genotypes in the neutral network
-   3)  the fitness of the neutral network
-The second element S of the returned triple is the disjoint sets representation of the collection of neutral nets.
-The third element C of the returned triple is a counter which contains the count of each root of S
-"""
-function list_neutral_nets(l::Landscape)
-  C = counter(Int)
-  S = build_neutral_nets(l)
+  
+function neutral_nets(l::Landscape,fitness_levels::Array{Int,1})
+  @assert l.a == 2
+  S = IntDisjointSets(l.a^l.n)
   for i = 0:(l.a^l.n-1)
-    push!(C,find_root(S,i+1)-1)
+    if (find_root(S,i+1) != i+1) || (S.ranks[i+1] > 0)
+      continue   # i is already in S
+    end
+    nbrs = neutral_net(i,l,fitness_levels)
+    if length(nbrs) > 0
+      push!(nbrs,i)  # add i to nbrs
+    else
+      nbrs = Int64[i]   # Array containing only i
+    end
+    add_ints_to_disjoint_sets!(S,nbrs)
   end
-  nn_list = map(x->(x,C[x],ifitness(x,l)), keys(C))
-  sort!(nn_list,lt=(x,y)->x[3]<y[3])   # sort by fitness
+  return S
+end
+
+function list_neutral_nets(l::Landscape,fitness_levels::Array{Int,1})
+  @assert l.a == 2
+  C = counter(Int)
+  S = neutral_nets(l,fitness_levels)
+  for i = 0:(l.a^l.n-1)
+    #if fitness_levels[i+1] >= lower_bound
+      push!(C,find_root(S,i+1)-1)
+    #end
+  end
+  nn_list = map(x->(x,C[x],fitness_levels[x+1]), keys(C))
+  sort!(nn_list,lt=(x,y)->x[2]<y[2])   # sort by size of neutral net
   return nn_list,S,C
 end
 
-@doc""" Writes two CSV files that show all neutral nets.
-Onc CSV file is sorted by the size of the neutral nets.
-The other CSV file is sorted by the fitness of the neutral nets.
-nn_lst is the list of neutral nets that is computed by the list_neutral_nets() function
-"""
-function write_neutral_nets(l::Landscape,nn_lst=Void)
-  if nn_lst == Void
-    (nn_lst,nn_d_sets,nn_counter)  = list_neutral_nets(l)  # nn_d_sets is the disjoint sets representation of the neutral nets
+function summarize(nn_list,num_intervals)
+  fit_increment = 1.0/num_intervals
+  nn3 = map(x->x[3],nn_list[1])
+  lb = minimum(nn3)
+  ub = maximum(nn3)
+  summary = []
+  for i = lb:ub
+    filtered_nn = [y[2] for y in filter(x->x[3]==i,nn_list[1])]
+    if length(filtered_nn) > 0
+      max_nn = maximum(filtered_nn)
+      sum_nn = sum(filtered_nn)
+      push!(summary,(i, i*fit_increment, sum_nn, max_nn, max_nn/sum_nn))
+    end
   end
-  lst_count_sort = sort(nn_lst,lt=(x,y)->x[2]<y[2])
-  fcs = open("list_nets/list_net_N"*string(l.n)*"_K"*string(l.k)*"_q"*string(l.q)*"_cnt_"*string(Dates.today())*".csv",
-    false,true,true,false,false)
-  for i = 1:length(nn_lst)
-    println(fcs,lst_count_sort[i][2],",",lst_count_sort[i][3])
-  end
-  close(fcs)
-  lst_fit_sort = sort(nn_lst,lt=(x,y)->x[3]<y[3])
-  ffs = open("list_nets/list_net_N"*string(l.n)*"_K"*string(l.k)*"_q"*string(l.q)*"_fit_"*string(Dates.today())*".csv",
-    false,true,true,false,false)
-  for i = 1:length(nn_lst)
-    println(ffs,lst_fit_sort[i][2],",",lst_fit_sort[i][3])
-  end
-  close(ffs)
+  return summary
 end
+

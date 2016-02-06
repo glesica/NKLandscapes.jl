@@ -26,6 +26,9 @@ function number_neighbors(g::Genotype, ls::Landscape)
   (ls.a - 1) * ls.n
 end
 
+@doc """
+Returns all neighbors as the columns of a matrix.
+"""
 function all_neighbors(g::Genotype, ls::Landscape)
   count = number_neighbors(g, ls)
   nbrs = zeros(Int64, ls.n, count) # Columns are genotypes
@@ -37,6 +40,9 @@ function all_neighbors(g::Genotype, ls::Landscape)
   return nbrs
 end
 
+@doc """
+Chooses and returns a randomly selected neighbor as a column vector.
+"""
 function random_neighbor(g::Genotype, ls::Landscape)
   check_genotype_size(g, ls)
 
@@ -47,8 +53,10 @@ function random_neighbor(g::Genotype, ls::Landscape)
   return g1
 end
 
-# Returns a matrix of all neutral (equal fitness) neighbors as the columns of a
-# matrix.  The neighbors are in random order
+@doc """
+Returns all neutral (equal fitness) neighbors as the columns of a matrix. The
+neighbors are in random order.
+"""
 function neutral_neighbors(g::Genotype, ls::Landscape)
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
@@ -60,16 +68,16 @@ function neutral_neighbors(g::Genotype, ls::Landscape)
     fits[i] = fitness(nbr, ls)
     i += 1
   end
-  #neutrals = [j for j = 1:count][fits .== f0] |> shuffle
-  #neutrals = filter(i->isapprox(fitness(nbrs[:,i],ls),f0),[j for j = 1:count])
-  neutrals = filter(i->isapprox(fits[i],f0),[j for j = 1:count]) |> shuffle
+  neutrals = filter(i -> isapprox(fits[i], f0), 1:count) |> shuffle
   return nbrs[:,neutrals]
 end
 
-# TODO: Test to make sure this works when there are no fitter neighbors.
-# Returns a matrix of all fitter neighbors as the columns of a matrix, sorted
-# from lowest fitness (left) to highest fitness (right).
+@doc """
+Returns all fitter neighbors as the columns of a matrix, sorted
+from lowest fitness (left) to highest fitness (right).
+"""
 function fitter_neighbors(g::Genotype, ls::Landscape)
+  # TODO: Test to make sure this works when there are no fitter neighbors.
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
   nbrs = zeros(Int64, ls.n, count) # Columns are genotypes
@@ -86,8 +94,10 @@ function fitter_neighbors(g::Genotype, ls::Landscape)
   return nbrs[:,sortperm(fits)]
 end
 
-# Returns a matrix of all fitter or equal neighbors as the columns of a matrix, sorted
-# from lowest fitness (left) to highest fitness (right).
+@doc """
+Returns all fitter or equal neighbors as the columns of a matrix,
+sorted from lowest fitness (left) to highest fitness (right).
+"""
 function fitter_or_equal_neighbors(g::Genotype, ls::Landscape)
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
@@ -99,18 +109,18 @@ function fitter_or_equal_neighbors(g::Genotype, ls::Landscape)
     fits[i] = fitness(nbr, ls)
     i += 1
   end
-  betters_neutrals = filter(i->(fits[i]>=f0)||(isapprox(fits[i],f0)),[j for j = 1:count])
+  betters_neutrals = filter(i -> fits[i] >= f0 || isapprox(fits[i], f0), 1:count)
   nbrs = nbrs[:,betters_neutrals]
   fits = fits[betters_neutrals]
   return nbrs[:,sortperm(fits)]
 end
 
-# Returns a matrix of all neighbors whose fitness is less than or equal to the upper bound
-#   and is greater than or equal to the lower bound (inclusive).
-#   the result is stored as the columns of a matrix, sorted
-#   from lowest fitness (left) to highest fitness (right).
-function fitness_range_neighbors(g::Genotype, ls::Landscape, lower_bound::Float64, upper_bound::Float64)
-  const eps = 1E-9
+@doc """
+Returns all neighbors with fitness in the closed interval [lb, ub]
+as columns of a matrix, sorted from lowest fitness (left) to highest fitness
+(right).
+"""
+function fitness_range_neighbors(g::Genotype, ls::Landscape, lb::Float64, ub::Float64)
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
   nbrs = zeros(Int64, ls.n, count) # Columns are genotypes
@@ -121,18 +131,17 @@ function fitness_range_neighbors(g::Genotype, ls::Landscape, lower_bound::Float6
     fits[i] = fitness(nbr, ls)
     i += 1
   end
-  function filter_funct(i)
-    return  (fits[i]>=lower_bound) && (fits[i]<upper_bound-eps) 
-  end
-  selected = filter(filter_funct, [j for j = 1:count])
+  selected = filter(i -> lb <= fits[i] <= ub, 1:count)
   nbrs = nbrs[:,selected]
   fits = fits[selected]
   return nbrs[:,sortperm(fits)]
 end
 
-# Returns the `count` fittest neighbors, even if they are less fit than `g`, as
-# the columns of a matrix, sorted from lowest fitness (left) to highest fitness
-# (right).
+@doc """
+Returns the `count` fittest neighbors, even if they are less fit than `g`, as
+the columns of a matrix, sorted from lowest fitness (left) to highest fitness
+(right).
+"""
 function fittest_neighbors(g::Genotype, ls::Landscape, count::Int64)
   if (count > number_neighbors(g, ls))
     error("count is too large")
@@ -150,6 +159,9 @@ function fittest_neighbors(g::Genotype, ls::Landscape, count::Int64)
   return nbrs[:,sortperm(fits)]
 end
 
+@doc """
+Returns the single fittest neighbor as a column vector.
+"""
 function fittest_neighbor(g::Genotype, ls::Landscape)
   nbrs = fittest_neighbors(g, ls, 1)
   return nbrs[:,end]

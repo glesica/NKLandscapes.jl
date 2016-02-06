@@ -1,5 +1,10 @@
 export natural_adaptive_walk, random_adaptive_walk, greedy_adaptive_walk, reluctant_adaptive_walk, neutral_walk
 
+# TODO: Add a tabu walk that looks at its own history, possibly only as far back as when it got to a certain level of fitness, and doesn't revisit nodes.
+# TODO: Add an optional limit on walk length.
+# TODO: Another tabu strategy is to avoid mutating a given locus more than once every k iterations.
+# TODO: Consider optionally doing a depth-first search with backtracking to ensure total exploration of a plateau before declaring it a local optimum.
+
 @doc """A record of the path of an adaptive or random walk.
 
 `strategy` - Can be one of :natural, :random, :greedy, :reluctant for now.

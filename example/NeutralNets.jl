@@ -1,33 +1,35 @@
-@doc """ Enumerates all connected neutral networks for NKqLandscapes and
-   all approximately neutral networks for NKLandscapes, and summarizes
-   their properties.
-The objective is to see if there are "giant" connected neutral networks
-   that contain almost all genotypes at a given fitness level as predicted
-   by the "percolation" model of Sergey Gavrilets for uncorrelated
-   landscapes.  (Reference needed.)
-An integer representation of genotypes is used extensively.  The
-   functions "genotype_to_int" and "int_to_genotype" convert between
-   the integer representation and the array representation used elsewhere
-   in NKLandscapes.jl.  If the arity of the landscape is 2, then the
-   integer representation can be considered as a bit-string representation,
-   and some functions require that the arity of the landscape is 2.
+@doc """
+Enumerates all connected neutral networks for NKqLandscapes and all
+approximately neutral networks for NKLandscapes, and summarizes their
+properties.  The objective is to see if there are "giant" connected neutral
+networks that contain almost all genotypes at a given fitness level as
+predicted by the "percolation" model of Sergey Gavrilets for uncorrelated
+landscapes.  (Reference needed.) An integer representation of genotypes
+is used extensively.  The functions "genotype_to_int" and
+"int_to_genotype" convert between the integer representation and the
+array representation used elsewhere in NKLandscapes.jl.  If the arity
+of the landscape is 2, then the integer representation can be
+considered as a bit-string representation, and some functions require
+that the arity of the landscape is 2.
 
 The following steps are suggested for the analysis of the connected approximately
 neutral networks of an NK landscape.
-   > l = NKLandscape(18,4)   # constructs the landscape
-   > fa = fitness_array(l)   # computes all fitness and stores them in array fa (computationally expensive)
-   > fl = fitness_levels_array(l,fa,20)  # fl is an array of fitness levels indexed on integer genotypes
-   > FL = list_neutral_nets(l,fl)   # FL is a list of all connected neutral nets
-   > print_summary(summary_list(FL,20))
 
-TO DO:  interpret the output of "summarize".  
+```
+l = NKLandscape(18,4)   # constructs the landscape
+fa = fitness_array(l)   # computes all fitness and stores them in array fa (computationally expensive)
+fl = fitness_levels_array(l,fa,20)  # fl is an array of fitness levels indexed on integer genotypes
+FL = list_neutral_nets(l,fl)   # FL is a list of all connected neutral nets
+print_summary(summary_list(FL,20))
+```
 
+TODO: interpret the output of "summarize".  
 """
-include("../src/NKLandscapes.jl")
 using NKLandscapes
 using DataStructures
 
-@doc """ Returns Genotype g converted to the equivalent base ls.a integer
+@doc """
+Returns Genotype g converted to the equivalent base ls.a integer
 """
 function genotype_to_int(g::Genotype,ls::Landscape)
   sum = g[1]-1
@@ -46,7 +48,8 @@ function int_to_genotype(n::Int64,ls::Landscape)
   end
 end
 
-@doc """ Returns the fitness of integer genotype ig
+@doc """
+Returns the fitness of integer genotype ig
 """
 function ifitness(ig::Int64,l::Landscape)
   return fitness(int_to_genotype(ig,l),l)

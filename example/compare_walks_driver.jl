@@ -1,7 +1,7 @@
 @doc """ Driver for compare_walks_parallel.jl.
 This file sets the parameters to be run.
 A command line for running this program:
-julia -p 4 -L "compare_walks_driver.jl" -e "run_all_jobs()"
+julia -p 8 -L "compare_walks_driver.jl" -e "run_all_jobs()"
 """
 include("../src/NKLandscapes.jl")
 using NKLandscapes
@@ -10,11 +10,12 @@ include("compare_walks_parallel.jl")
 
 const BOUNDARIES = ["Nearest-neighbor", "Random"]
 
-const N_VALUES = [50]
-const K_VALUE = 8
+#const N_VALUES = [60, 100, 140, 180]
+const N_VALUES = [220, 240]
+const K_VALUE =  8
 const Q_VALUE = 0  # q for NKq landscape, set to 0 for NK landscape
 const B_VALUE = 2
-const RUNS = 10  # number of runs for each setting of the parameters
+const RUNS = 100  # number of runs for each setting of the parameters
 
 function run_all_jobs()
   print_header()

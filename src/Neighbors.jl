@@ -77,7 +77,7 @@ Returns all fitter neighbors as the columns of a matrix, sorted
 from lowest fitness (left) to highest fitness (right) unless `sort` is set to
 `false`, in which case they are randomized.
 """
-function fitter_neighbors(g::Genotype, ls::Landscape, sort::Bool=true)
+function fitter_neighbors(g::Genotype, ls::Landscape; sort::Bool=true)
   # TODO: Test to make sure this works when there are no fitter neighbors.
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
@@ -95,7 +95,7 @@ function fitter_neighbors(g::Genotype, ls::Landscape, sort::Bool=true)
   return if sort
     nbrs[:,sortperm(fits)]
   else
-    nbrs[:,shuffle(fits)]
+    nbrs[:,randperm(length(fits))]
   end
 end
 
@@ -104,7 +104,7 @@ Returns all fitter or equal neighbors as the columns of a matrix, sorted from
 lowest fitness (left) to highest fitness (right) unless `sort` is set to
 `false`, in which case they are randomized.
 """
-function fitter_or_equal_neighbors(g::Genotype, ls::Landscape, sort::Bool=true)
+function fitter_or_equal_neighbors(g::Genotype, ls::Landscape; sort::Bool=true)
   f0 = fitness(g, ls)
   count = number_neighbors(g, ls)
   nbrs = zeros(Int64, ls.n, count) # Columns are genotypes
@@ -126,7 +126,7 @@ function fitter_or_equal_neighbors(g::Genotype, ls::Landscape, sort::Bool=true)
 end
 
 @doc """
-Returns all neighbors with fitness in the closed interval [lb, ub]
+Returns all neighbors with fitness in the open interval [lb, ub)
 as columns of a matrix, sorted from lowest fitness (left) to highest fitness
 (right).
 """
@@ -141,7 +141,7 @@ function fitness_range_neighbors(g::Genotype, ls::Landscape, lb::Float64, ub::Fl
     fits[i] = fitness(nbr, ls)
     i += 1
   end
-  selected = filter(i -> lb <= fits[i] <= ub, 1:count)
+  selected = filter(i -> lb <= fits[i] < ub, 1:count)
   nbrs = nbrs[:,selected]
   fits = fits[selected]
   return nbrs[:,sortperm(fits)]

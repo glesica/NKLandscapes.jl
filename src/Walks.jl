@@ -4,7 +4,7 @@ export natural_adaptive_walk, random_adaptive_walk, greedy_adaptive_walk,
 
 @doc """A record of the path of an adaptive or random walk.
 
-`strategy` - Can be one of :natural, :random, :greedy, :reluctant for now.
+`strategy` - Can be one of :natural, :random, :greedy, :reluctant, :fitness_range, :fitter_then_neutral for now.
 
 `length` - The number of transitions from the original genotype to the ultimate
 optimum. This will be one less than the width of the `history_list` matrix.
@@ -159,7 +159,7 @@ The resulting walk will have no more than `maxsteps` steps.
 """
 function fitness_range_walk(g::Genotype, l::Landscape,  lb::Float64, ub::Float64, maxsteps::Int64=0)
   nbrfunc = (g, l) -> fitness_range_neighbors(g, l, lb, ub)
-  generic_neutral_walk(g, l, :neutral, nbrfunc, maxsteps)
+  generic_neutral_walk(g, l, :fitness_range, nbrfunc, maxsteps)
 end
 
 @doc """
@@ -200,6 +200,6 @@ function fitter_then_neutral_walk(g::Genotype, l::Landscape, maxsteps::Int64=0)
     end
     return neutral_neighbors(g, l)
   end
-  generic_neutral_walk(g, l, :neutral, nbrfunc, maxsteps)
+  generic_neutral_walk(g, l, :fitter_then_neutral, nbrfunc, maxsteps)
 end
 

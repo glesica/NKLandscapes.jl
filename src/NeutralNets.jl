@@ -82,7 +82,7 @@ The fitness array may be given as the third argument
 function fitness_levels_array(l::Landscape,num_intervals::Int, fa::Array{Float64,1}=Float64[])
   fitness_levels = zeros(Int64,l.a^l.n)
   if typeof(l)==NKLandscapes.NKqLandscape
-    eps_inc = eps()  # slightly reduce the lower bound on intervals for NKq landscapes
+    eps_inc = eps()  # slightly increase fitnesses for NKq landscapes
   else
     eps_inc = 0.0
   end

@@ -47,11 +47,11 @@ facts("NKLandscapes.jl fast tests") do
     rand_w = random_adaptive_walk(min_g,ls)
     @fact max_fit --> roughly(rand_w.fitnesses[end]) "Expected final fitness of random adaptive walk to be maximum fitness of landscape which is $max_fit"
     greedy_w = greedy_adaptive_walk(min_g,ls)
-    @fact max_fit --> roughly(greedy_w.fitnesses[end]) "Expected final fitness of random adaptive walk to be maximum fitness of landscape which is $max_fit"
+    @fact max_fit --> roughly(greedy_w.fitnesses[end]) "Expected final fitness of greedy adaptive walk to be maximum fitness of landscape which is $max_fit"
     reluct_w = reluctant_adaptive_walk(min_g,ls)
-    @fact max_fit --> roughly(reluct_w.fitnesses[end]) "Expected final fitness of random adaptive walk to be maximum fitness of landscape which is $max_fit"
+    @fact max_fit --> roughly(reluct_w.fitnesses[end]) "Expected final fitness of reluctant adaptive walk to be maximum fitness of landscape which is $max_fit"
     fit_neutral_w = fitter_then_neutral_walk(min_g,ls)
-    @fact max_fit --> roughly(fit_neutral_w.fitnesses[end]) "Expected final fitness of random adaptive walk to be maximum fitness of landscape which is $max_fit"
+    @fact max_fit --> roughly(fit_neutral_w.fitnesses[end]) "Expected final fitness of fitter_then_neutral adaptive walk to be maximum fitness of landscape which is $max_fit"
   end
 
   context("NK.neutral_nets(...)") do

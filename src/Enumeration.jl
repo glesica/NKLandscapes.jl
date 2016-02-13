@@ -125,7 +125,8 @@ end
 
 Returns the nodes of the connected neutral network of which the given genotype
 is a part as a vector of `IntGenotype`s. Two genotypes are considered to be
-neighbors if they have the same fitness level.
+neighbors if they have the same fitness level. Two genotypes are considered to
+be connected if they are neighbors (they differ at one locus).
 
 `levels` is a vector of fitness levels, or bins, as returned by the `fitlevs`
 function.
@@ -149,27 +150,26 @@ end
 
 @doc """neutralnets(ls::Landscape, levels::Vector{Int64})
 
-For this and succeeding functions, a "neutral net" is a path connected set of
-genotypes with the same fitness level.  Two genotypes are "connected" if they
-are neighbors (i. e., differ at one locus).  Returns the IntDisjointSets
-representation of all of the connected neutral nets of landscape l.
+Returns an instance of `IntDisjointSet` that contains, as disjoint sets, the
+connected neutral networks present in the given landscape.
 """
 function neutralnets(ls::Landscape, levels::Vector{Int64})
-  S = IntDisjointSets(ls.a^ls.n)
-  for i = 0:(ls.a^ls.n - 1)
-    if (find_root(S, i + 1) != i + 1) || (S.ranks[i + 1] > 0)
-      continue   # i is already in S
+  nets = IntDisjointSets(ls.a^ls.n)
+  for g = 0:(ls.a^ls.n - 1)
+    # TODO: Is the find_root call actually necessary?
+    if (find_root(nets, g + 1) != g + 1) || (nets.ranks[g + 1] > 0)
+      continue   # g has already been accounted for
     end
-    nbrs = neutralnet(i, ls, levels)
-    if length(nbrs) > 0
-      push!(nbrs, i)  # add i to nbrs
+    net = neutralnet(g, ls, levels)
+    if length(net) > 0
+      push!(net, g)  # add g to nbrs
     else
-      nbrs = Int64[i]   # Array containing only i
+      net = IntGenotype[g]   # Array containing only i
     end
     for j = 2:length(nbrs)
-      union!(S, int_list[j - 1] + 1, int_list[j] + 1)
+      union!(nets, net[j - 1] + 1, net[j] + 1)
     end
   end
-  return S
+  return nets
 end
 

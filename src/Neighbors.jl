@@ -1,5 +1,3 @@
-#using Distributions
-
 export all_neighbors, number_neighbors, random_neighbor, neutral_neighbors, fitter_neighbors, fittest_neighbors, fittest_neighbor,
   fitter_or_equal_neighbors, fitness_range_neighbors
 

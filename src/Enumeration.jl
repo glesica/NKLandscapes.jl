@@ -46,72 +46,130 @@ function lsfits(ls::Landscape)
   return fits
 end
 
-@doc """levfits(ls::Landscape, ints::Int64, fits::Vector{Float64}, epsilon::Float64)
+@doc """fitlevs(ls::Landscape, intervals::Int64, fits::Vector{Float64}, epsilon::Float64)
 
 Return a vector of fitness levels of each genotype possible on the given
 landscape. The fitness level is the index of the bin into which it would fall
-assuming the interval [0,1] was divided into `ints` bins.
+assuming the interval [0,1] was divided into `intervals` bins.
 """
-function levfits(ls::Landscape, ints::Int64, fits::Vector{Float64}, epsilon::Float64)
-  levs = zeros(Int64, ls.a^ls.n)
+function fitlevs(ls::Landscape, intervals::Int64, fits::Vector{Float64}, epsilon::Float64)
+  levels = zeros(Int64, ls.a^ls.n)
   for i = 0:(ls.a^ls.n - 1)
-    levs[i + 1] = floor(Int64, (fits[i + 1] + epsilon) * ints)
+    levels[i + 1] = floor(Int64, (fits[i + 1] + epsilon) * intervals)
   end
-  return levs
+  return levels
 end
 
-@doc """levfits(ls::NKqLandscape, ints::Int64, fits::Vector{Float64})
+@doc """fitlevs(ls::NKqLandscape, intervals::Int64, fits::Vector{Float64})
 """
-function levfits(ls::NKqLandscape, ints::Int64, fits::Vector{Float64})
-  levfits(ls, ints, fits, eps())
+function fitlevs(ls::NKqLandscape, intervals::Int64, fits::Vector{Float64})
+  fitlevs(ls, intervals, fits, eps())
 end
 
-@doc """levfits(ls::Landscape, ints::Int64, fits::Vector{Float64})
+@doc """fitlevs(ls::Landscape, intervals::Int64, fits::Vector{Float64})
 """
-function levfits(ls::NKLandscape, ints::Int64, fits::Vector{Float64})
-  levfits(ls, ints, fits, 0.0)
+function fitlevs(ls::NKLandscape, intervals::Int64, fits::Vector{Float64})
+  fitlevs(ls, intervals, fits, 0.0)
 end
 
-@doc """levfits(ls::Landscape, ints::Int64)
+@doc """fitlevs(ls::Landscape, intervals::Int64)
 """
-function levfits(ls::Landscape, ints::Int64)
-  levfits(ls, ints, lsfits(ls))
+function fitlevs(ls::Landscape, intervals::Int64)
+  fitlevs(ls, intervals, lsfits(ls))
 end
 
-@doc """levcounts(ls::Landscape, ints::Int64, levs::Vector{Int64})
+@doc """levcounts(ls::Landscape, intervals::Int64, levels::Vector{Int64})
 
 Return a vector such that the i'th element of the vector contains the number of
 genotypes that fall into the i'th fitness level bin.
 """
-function levcounts(ls::Landscape, ints::Int64, levs::Vector{Int64})
-  counts = zeros(Int64, ints)
+function levcounts(ls::Landscape, intervals::Int64, levels::Vector{Int64})
+  counts = zeros(Int64, intervals)
   for i = 0:(ls.a^ls.n - 1)
-    counts[levs[i + 1]] += 1
+    counts[levels[i + 1]] += 1
   end
   return counts
 end
 
-@doc """levcounts(ls::Landscape, ints::Int64, fits::Vector{Float64})
+@doc """levcounts(ls::Landscape, intervals::Int64, fits::Vector{Float64})
 """
-function levcounts(ls::Landscape, ints::Int64, fits::Vector{Float64})
-  levcounts(ls, ints, levfits(ls, ints, fits))
+function levcounts(ls::Landscape, intervals::Int64, fits::Vector{Float64})
+  levcounts(ls, intervals, fitlevs(ls, intervals, fits))
 end
 
-@doc """levcounts(ls::Landscape, ints::Int64)
+@doc """levcounts(ls::Landscape, intervals::Int64)
 """
-function levcounts(ls::Landscape, ints::Int64)
-  levcounts(ls, ints, lsfits(ls))
+function levcounts(ls::Landscape, intervals::Int64)
+  levcounts(ls, intervals, lsfits(ls))
 end
 
-# assumes landscape l has arity 2, i. e.,  l.a==2.
 @doc """neighbors(g::IntGenotype, ls::Landscape)
 
-Return a vector of all one-mutant neighbors as integers.
+Return a vector of all one-mutant neighbors as integers. We assume
+that `ls.a == 2`.
 """
-function neighbors(g::IntGenotype, l::Landscape)
+function neighbors(g::IntGenotype, ls::Landscape)
   if ls.a != 2
     error("Only landscapes with a=2 are currently supported by neighbors().")
   end
-  return [gtoi(nbr, ls) for nbr = neighbors(vg, ls)]
+  nbrs = zeros(IntGenotype, ls.n)
+  single_bit = convert(UInt64,0x1)
+  for i = 0:(l.n - 1)
+    nbrs[i + 1] = g $ single_bit
+    single_bit <<= 1
+  end
+  return nbrs
+end
+
+@doc """neutralnet(g::IntGenotype, ls::Landscape, levels::Vector{Int64})
+
+Returns the nodes of the connected neutral network of which the given genotype
+is a part as a vector of `IntGenotype`s. Two genotypes are considered to be
+neighbors if they have the same fitness level.
+
+`levels` is a vector of fitness levels, or bins, as returned by the `fitlevs`
+function.
+"""
+function neutralnet(g::IntGenotype, ls::Landscape, levels::Vector{Int64})
+  f0 = levels[g + 1]
+  closed = Set()
+  stack = Stack(IntGenotype)
+  push!(stack, g)
+  while !isempty(stack)
+    ng = pop!(stack)
+    if !in(ng, closed)
+      push!(closed, ng)
+      for nbr = filter(nbr -> levels[nbr + 1] == f0, neighbors(ng, ls))
+        push!(stack, nbr)
+      end
+    end
+  end
+  return collect(closed)
+end
+
+@doc """neutralnets(ls::Landscape, levels::Vector{Int64})
+
+For this and succeeding functions, a "neutral net" is a path connected set of
+genotypes with the same fitness level.  Two genotypes are "connected" if they
+are neighbors (i. e., differ at one locus).  Returns the IntDisjointSets
+representation of all of the connected neutral nets of landscape l.
+"""
+function neutralnets(ls::Landscape, levels::Vector{Int64})
+  S = IntDisjointSets(ls.a^ls.n)
+  for i = 0:(ls.a^ls.n - 1)
+    if (find_root(S, i + 1) != i + 1) || (S.ranks[i + 1] > 0)
+      continue   # i is already in S
+    end
+    nbrs = neutralnet(i, ls, levels)
+    if length(nbrs) > 0
+      push!(nbrs, i)  # add i to nbrs
+    else
+      nbrs = Int64[i]   # Array containing only i
+    end
+    for j = 2:length(nbrs)
+      union!(S, int_list[j - 1] + 1, int_list[j] + 1)
+    end
+  end
+  return S
 end
 

@@ -261,4 +261,5 @@ facts("NKLandscapes.jl") do
 end
 
 include("fastfunc.jl")
+include("fastnets.jl")
 

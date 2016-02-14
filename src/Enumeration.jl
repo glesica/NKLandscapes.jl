@@ -1,3 +1,7 @@
+using DataStructures
+
+export IntGenotype, gtoi, itog, fitness, lsfits, fitlevs, levcounts, neighbors, neutralnet, neutralnets
+
 typealias IntGenotype UInt64
 
 @doc """gtoi(g::Genotype, ls::Landscape)
@@ -19,8 +23,8 @@ end
 
 Convert an integer of base `ls.a` to an equivalent `Genotype`.
 """
-function itog(n::IntGenotype, ls::Landscape)
-  [parse(IntGenotype, allele, ls.a) + 1 for allele = base(ls.a, n, ls.a)]
+function itog(g::IntGenotype, ls::Landscape)
+  return [parse(Int64, allele, ls.a) + 1 for allele = base(ls.a, g, ls.n)]
 end
 
 @doc """fitness(g::IntGenotype, ls::Landscape)
@@ -40,7 +44,7 @@ the value `i`.
 """
 function lsfits(ls::Landscape)
   fits = zeros(Float64, ls.a^ls.n)
-  for i = 0:(l.a^l.n - 1)
+  for i::IntGenotype = 0:(ls.a^ls.n - 1)
     fits[i + 1] = fitness(i, ls)
   end
   return fits
@@ -114,7 +118,7 @@ function neighbors(g::IntGenotype, ls::Landscape)
   end
   nbrs = zeros(IntGenotype, ls.n)
   single_bit = convert(UInt64,0x1)
-  for i = 0:(l.n - 1)
+  for i = 0:(ls.n - 1)
     nbrs[i + 1] = g $ single_bit
     single_bit <<= 1
   end
@@ -155,7 +159,7 @@ connected neutral networks present in the given landscape.
 """
 function neutralnets(ls::Landscape, levels::Vector{Int64})
   nets = IntDisjointSets(ls.a^ls.n)
-  for g = 0:(ls.a^ls.n - 1)
+  for g::IntGenotype = 0:(ls.a^ls.n - 1)
     # TODO: Is the find_root call actually necessary?
     if (find_root(nets, g + 1) != g + 1) || (nets.ranks[g + 1] > 0)
       continue   # g has already been accounted for
@@ -166,10 +170,32 @@ function neutralnets(ls::Landscape, levels::Vector{Int64})
     else
       net = IntGenotype[g]   # Array containing only i
     end
-    for j = 2:length(nbrs)
+    for j = 2:length(net)
       union!(nets, net[j - 1] + 1, net[j] + 1)
     end
   end
   return nets
+end
+
+@doc """netcounts(nets::IntDisjointSets, levels::Vector{Int64})
+
+Returns a vector of triples, each of which corresponds to a connected neutral
+network within the given `IntDisjointSets` instance, which will most likely
+come from a call to `neutralnets(...)`. Each triple consists of the following
+data:
+
+  1. Integer genotype representative of the network
+  2. Number of genotypes in the network
+  3. Integer fitness level of the network
+
+The resulting vector is sorted by the number of genotypes in each network.
+
+`levels` is the fitness levels vector that was provided to `neutralnets`.
+"""
+function netcounts(nets::IntDisjointSets, levels::Vector{Int64})
+  c = counter(nets.parents)
+  nn_list = map(x -> (x, c[x], levels[x]), keys(c))
+  sort!(nn_list, by=x -> x[2]) # Sort by network size
+  return nn_list
 end
 

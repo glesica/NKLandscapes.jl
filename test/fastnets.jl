@@ -8,25 +8,26 @@ n = 3    # n is arbitrary as long as n >= 3
 k = 0    # k must be 0 for these tests to work
 a = 2    # a must be 2 for some of the neutral nets functions to work
 
-# Since k == 0, ls has a single minimum fitness neutral net and a single maximum fitness neutral net
-# Works for either an NKq landscape or an NK landscape
+# Since k == 0, ls has a single minimum fitness neutral net and a single
+# maximum fitness neutral net. Works for either an NKq landscape or an NK
+# landscape
 type LandscapeProperties
   ls::NK.Landscape
   fa::Array{Float64,1}   # Array of fitnesses indexed by integer genotypes
   fl::Array{Int64,1}     # Array of fitness levels indexed by integer genotypes
-  min_g::Array{Int64,1}  # A genotype of minimum fitness
+  min_g::NK.Genotype # A genotype of minimum fitness
 end
 
 function LandscapeProperties(ls::NK.Landscape)
-  fa = NK.fitness_array(ls)
-  fl = NK.fitness_levels_array(ls,ls.n,fa)
-  min_g = NK.int_to_genotype(indmin(fa)-1,ls)
-  LandscapeProperties(ls,fa,fl,min_g)
+  fa = NK.lsfits(ls)
+  fl = NK.fitlevs(ls, ls.n, fa)
+  min_g = NK.itog(NK.IntGenotype(indmin(fa)) - 1, ls)
+  LandscapeProperties(ls, fa, fl, min_g)
 end
 
-lsp_nk = LandscapeProperties(NK.NKLandscape(n,k))
-lsp_nkq = LandscapeProperties(NK.NKqLandscape(n,k,a))
-lsp_list = [lsp_nk,lsp_nkq]
+lsp_nk = LandscapeProperties(NK.NKLandscape(n, k))
+lsp_nkq = LandscapeProperties(NK.NKqLandscape(n, k, a))
+lsp_list = [lsp_nk, lsp_nkq]
 
 facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
   context("NK.neighbors(...)") do
@@ -67,9 +68,11 @@ facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
     end
   end
 
-  context("NK.neutral_nets(...)") do
+  context("NK.netcounts(...)") do
     for lsp in lsp_list
-      lnn = sort(NK.list_neutral_nets(lsp.ls,lsp.fl),lt=(x,y)->x[3]<y[3])  # neutral nets sorted by fitness
+      dsets = NK.neutralnets(lsp.ls, lsp.fl)
+      lnn = NK.netcounts(dsets, lsp.fl)
+      sort!(lnn, by=x -> x[3])
       if length(lnn) > 1
         @fact lnn[end][3] --> greater_than(lnn[end-1][3])  "Expected a single neutral net of maximum fitness"
       else  # All genotypes have the same fitness

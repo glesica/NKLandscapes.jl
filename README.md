@@ -55,6 +55,8 @@ be run with `./runtests.sh SUITE` where `SUITE` is one of the following:
 
   * fastfunc - some fast-running functional tests, these are run automatically
     with the unit tests
+  * fastnets - some tests around neutral network enumeration, these are run
+    automatically with the unit tests
   * `kauffman` - experiments from [1]
   * `nowak` - experiments from [2]
 

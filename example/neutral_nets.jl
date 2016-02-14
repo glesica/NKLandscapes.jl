@@ -1,3 +1,17 @@
+@doc """
+Enumerates all connected neutral networks for NKqLandscapes and all
+approximately neutral networks for NKLandscapes, and summarizes their
+properties.  The objective is to see if there are "giant" connected neutral
+networks that contain almost all genotypes at a given fitness level as
+predicted by the "percolation" model of Sergey Gavrilets for uncorrelated
+landscapes.  (Reference needed.) An integer representation of genotypes
+is used extensively.  The functions `gtoi` and
+`itog` convert between the integer representation and the
+array representation used elsewhere in NKLandscapes.jl.  If the arity
+of the landscape is 2, then the integer representation can be
+considered as a bit-string representation, and some functions require
+that the arity of the landscape is 2.
+"""
 using NKLandscapes
 using DataStructures
 

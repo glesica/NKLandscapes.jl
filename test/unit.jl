@@ -22,10 +22,25 @@ facts("NKLandscapes.jl") do
 
   for l = landscapes
     context("$(l)") do
-      context("Landscapes") do
+      context("Enumeration") do
         g = rand(Genotype, l)
         f = fitness(g, l)
 
+        context("gtoi and itog") do
+          ig = gtoi(g, l)
+          gg = itog(ig, l)
+          @fact gg --> g
+        end
+
+        context("fitness") do
+          ig = gtoi(g, l)
+          @fact fitness(ig, l) --> fitness(g, l)
+        end
+      end
+
+      context("Landscapes") do
+        g = rand(Genotype, l)
+        f = fitness(g, l)
 
         context("Neighbors should differ at one locus") do
           function test_neighbors(genotype, landscape)

@@ -32,7 +32,7 @@ if [ "$#" -eq 1 ]; then
     else
         # Run the tests based on the code in the working directory, not just
         # what has been committed.
-        cd "$DIR/test" && julia -e "include(\"../src/NKLandscapes.jl\"); include(\"${1}.jl\");"
+        cd "$DIR/test" && julia --color=yes -e "include(\"../src/NKLandscapes.jl\"); include(\"${1}.jl\");"
     fi
 fi
 

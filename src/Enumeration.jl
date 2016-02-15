@@ -90,7 +90,7 @@ genotypes that fall into the i'th fitness level bin.
 function levcounts(ls::Landscape, intervals::Int64, levels::Vector{Int64})
   counts = zeros(Int64, intervals)
   for i = 0:(ls.a^ls.n - 1)
-    counts[levels[i + 1]] += 1
+    counts[levels[i + 1] + 1] += 1
   end
   return counts
 end

@@ -5,7 +5,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() {
-    echo "Usage: ./runtests.sh {unit,fastfunc,kauffman,nowak} [{all,nightlies,releases}]"
+    echo "Usage: ./runtests.sh {unit,fastfunc,fastnets,kauffman,nowak} [{all,nightlies,releases}]"
     echo ""
     echo "  Run the test suite specified by the first argument"
     echo "  in the environment (via Vagrant) specified by the"
@@ -32,7 +32,7 @@ if [ "$#" -eq 1 ]; then
     else
         # Run the tests based on the code in the working directory, not just
         # what has been committed.
-        cd "$DIR/test" && julia -e "include(\"../src/NKLandscapes.jl\"); include(\"${1}.jl\");"
+        cd "$DIR/test" && julia --color=yes -e "include(\"../src/NKLandscapes.jl\"); include(\"${1}.jl\");"
     fi
 fi
 

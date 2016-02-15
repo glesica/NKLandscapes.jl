@@ -22,10 +22,25 @@ facts("NKLandscapes.jl") do
 
   for l = landscapes
     context("$(l)") do
-      context("Landscapes") do
+      context("Enumeration") do
         g = rand(Genotype, l)
         f = fitness(g, l)
 
+        context("gtoi and itog") do
+          ig = gtoi(g, l)
+          gg = itog(ig, l)
+          @fact gg --> g
+        end
+
+        context("fitness") do
+          ig = gtoi(g, l)
+          @fact fitness(ig, l) --> fitness(g, l)
+        end
+      end
+
+      context("Landscapes") do
+        g = rand(Genotype, l)
+        f = fitness(g, l)
 
         context("Neighbors should differ at one locus") do
           function test_neighbors(genotype, landscape)
@@ -258,7 +273,83 @@ facts("NKLandscapes.jl") do
       end
     end
   end
+
+  context("Enumeration") do
+    l = NKLandscape(2, 0)
+
+    function testlevel(f, b)
+      if f < 0.5
+        @fact b --> 0
+      else
+        @fact b --> 1
+      end
+    end
+
+    function testfitness(f, g)
+      fg = fitness(g, l)
+      @fact f --> roughly(fg)
+    end
+
+    context("lsfits") do
+      fits = lsfits(l)
+
+      testfitness(fits[1], [1, 1])
+      testfitness(fits[2], [1, 2])
+      testfitness(fits[3], [2, 1])
+      testfitness(fits[4], [2, 2])
+    end
+
+    context("fitlevs") do
+      levs = fitlevs(l, 2)
+
+      f1 = fitness([1, 1], l)
+      testlevel(f1, levs[1])
+
+      f2 = fitness([1, 2], l)
+      testlevel(f2, levs[2])
+
+      f3 = fitness([2, 1], l)
+      testlevel(f3, levs[3])
+
+      f4 = fitness([2, 2], l)
+      testlevel(f4, levs[4])
+    end
+
+    context("levcounts") do
+      cts = levcounts(l, 2)
+
+      gfits = [
+        fitness([1, 1], l),
+        fitness([1, 2], l),
+        fitness([2, 1], l),
+        fitness([2, 2], l)
+      ]
+      low = 0
+      high = 0
+      for gf = gfits
+        if gf < 0.5
+          low += 1
+        else
+          high += 1
+        end
+      end
+
+      @fact cts[1] --> low
+      @fact cts[2] --> high
+    end
+
+    context("neighbors") do
+      la = NKLandscape(2, 0, a=3)
+      @fact_throws neighbors(0, la)
+
+      nbrs = neighbors(IntGenotype(0), l)
+      @fact length(nbrs) --> 2
+      @fact IntGenotype(1) --> anyof(nbrs...)
+      @fact IntGenotype(2) --> anyof(nbrs...)
+    end
+  end
 end
 
 include("fastfunc.jl")
+include("fastnets.jl")
 

@@ -2,18 +2,38 @@ import Base.Random: rand, zeros
 
 export Genotype, fitness, random_genotype
 
-typealias Genotype Vector{Int64}
-
-# TODO: Allow random fitnesses to be drawn from other distributions.
-
-contrib(i::Int64, g::Genotype, ls::Landscape, update::Function) = begin
-  cont_is = ls.links[:,i]
-  cont_vs = g[cont_is]
-  return get!(update, ls.contribs, [i; cont_vs])
+@doc """A genotype representation.
+"""
+type Genotype{T <: Landscape}
+  alleles::AlleleString
+  landscape::T
 end
-contrib(i::Int64, g::Genotype, ls::NKLandscape) = contrib(i, g, ls, () -> rand())
-contrib(i::Int64, g::Genotype, ls::NKqLandscape) = contrib(i, g, ls, () -> rand(0:(ls.q - 1)))
-contrib(i::Int64, g::Genotype, ls::NKpLandscape) = begin
+
+@doc """contribs(g::Genotype, update::Function)
+
+Return a vector of contributions where the ith element in
+the vector is the contribution made by the ith allele in the
+genotype, given the values of the k alleles to which it is
+epistatically linked.
+"""
+function contribs(g::Genotype, update::Function)
+  return map(1:g.landscape.n) do i
+    linksmask::AlleleMask = g.landscape.links[i]
+    return get!(update, g.landscape.contribs[i], linksmask)
+  end
+end
+
+@doc """contribs(g::Genotype)
+"""
+contribs(g::Genotype{NKLandscape}) = contribs(g, () -> rand())
+
+@doc """contribs(g::Genotype)
+"""
+contribs(g::Genotype{NKqLandscape}) = contribs(g, () -> rand(0:(ls.q - 1)))
+
+@doc """contribs(g::Genotype)
+"""
+function contribs(g::Genotype{NKpLandscape})
   update = () -> begin
     if rand() < ls.p
       return 0.0
@@ -21,29 +41,19 @@ contrib(i::Int64, g::Genotype, ls::NKpLandscape) = begin
       return rand()
     end
   end
-  return contrib(i, g, ls, update)
+  return contribs(g, update)
 end
 
-function check_genotype_size(g::Genotype, ls::Landscape)
-  if length(g) != ls.n
-    error("genotype is of wrong size")
-  end
-end
+@doc """fitness(g::Genotype{NKqLandscape})
+"""
+fitness(g::Genotype{NKqLandscape}) = mean(contribs(g)) / (g.landscape.q - 1)
+  # TODO: Do we include the fake NKp zeros in the sum or just let the fitness range lower?
 
-function fitness(g::Genotype, ls::NKqLandscape)
-  check_genotype_size(g, ls)
-  (map(1:ls.n) do i
-    contrib(i, g, ls)
-  end |> mean) / (ls.q - 1)
-end
+@doc """fitness(g::Genotype)
 
-function fitness(g::Genotype, ls::Landscape)
-  # TODO: Do we include the fake zeros in the sum or just let the fitness range lower?
-  check_genotype_size(g, ls)
-  map(1:ls.n) do i
-    contrib(i, g, ls)
-  end |> mean
-end
+Compute the fitness of a particular genotype.
+"""
+fitness(g::Genotype) = mean(contribs(g))
 
-rand(::Type{Genotype}, ls::Landscape) = [rand(1:ls.a) for _ = 1:ls.n]
-zeros(::Type{Genotype}, ls::Landscape) = [1 for _ = 1:ls.n]
+rand(::Type{Genotype}, ls::Landscape) = Genotype(rand(AlleleString), ls)
+zeros(::Type{Genotype}, ls::Landscape) = Genotype(0, ls)

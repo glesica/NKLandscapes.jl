@@ -1,5 +1,7 @@
 module NKLandscapes
 
+include("aliases.jl")
+
 include("Landscape.jl")
 include("Genotype.jl")
 include("Population.jl")

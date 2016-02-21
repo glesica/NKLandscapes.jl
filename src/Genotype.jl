@@ -1,6 +1,6 @@
 import Base.Random: rand, zeros
 
-export Genotype, fitness, random_genotype
+export Genotype, contribs, fitness
 
 @doc """A genotype representation.
 """

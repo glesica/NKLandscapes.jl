@@ -7,8 +7,8 @@ type NKLandscape <: Landscape
   n::Int64
   k::Int64
   a::Int64
-  links::Links
-  contribs::Contribs
+  links::AlleleLinks
+  contribs::AlleleContribs
 end
 
 function NKLandscape(n::Int64, k::Int64; a::Int64=2, near::Bool=false)

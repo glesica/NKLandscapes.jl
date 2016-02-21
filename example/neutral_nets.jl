@@ -28,12 +28,12 @@ Note that if this ratio is close to 1.0, then a high proportion of the genotypes
 """
 function neutral_net_summary(counts, num_intervals)
   fit_increment = 1.0/num_intervals
-  nn3 = map(x->x[3],nn_list)
+  nn3 = map(x->x[3],counts)
   lb = minimum(nn3)
   ub = maximum(nn3)
   summary = []
   for i = lb:ub
-    filtered_nn = [y[2] for y in filter(x->x[3]==i,nn_list)]
+    filtered_nn = [y[2] for y in filter(x->x[3]==i,counts)]
     if length(filtered_nn) > 0
       max_nn = maximum(filtered_nn)
       sum_nn = sum(filtered_nn)

@@ -13,7 +13,7 @@ end
 
 function NKLandscape(n::Int64, k::Int64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
-  contribs = Contribs()
+  contribs = AlleleContribs()
   return NKLandscape(n, k, a, links, contribs)
 end
 

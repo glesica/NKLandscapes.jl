@@ -19,7 +19,8 @@ epistatically linked.
 function contribs(g::Genotype, update::Function)
   return map(1:g.landscape.n) do i
     linksmask::AlleleMask = g.landscape.links[i]
-    return get!(update, g.landscape.contribs[i], linksmask)
+    contribstring::AlleleString = g.alleles & linksmask
+    return get!(update, g.landscape.contribs[i], contribstring)
   end
 end
 

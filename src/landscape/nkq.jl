@@ -9,13 +9,13 @@ type NKqLandscape <: Landscape
   k::Int64
   q::Int64
   a::Int64
-  links::Links
-  contribs::Contribs
+  links::AlleleLinks
+  contribs::AlleleContribs
 end
 
 function NKqLandscape(n::Int64, k::Int64, q::Int64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
-  contribs = Contribs()
+  contribs = AlleleContribs()
   return NKqLandscape(n, k, q, a, links, contribs)
 end
 

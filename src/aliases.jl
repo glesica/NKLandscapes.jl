@@ -1,4 +1,4 @@
-export AlleleMask, AlleleString, AlleleLinks, Contribs
+export AlleleMask, AlleleString, AlleleLinks, AlleleContribs
 
 @doc """AlleleMask UInt128
 
@@ -17,21 +17,26 @@ typealias AlleleString UInt128
 A vector of masks specifying the epistatic links for each allele. The ith
 element of the vector stores a mask of alleles that are epistatically linked
 to the allele in the ith least significant position.
+
+Each mask should have a 1 in the position that corresponds to the locus
+discussed above, and in the K positions that correspond to the loci to which it
+is epistatically linked.
 """
-# FIXME: This only accounts for the case where the allele in question is 1.
 typealias AlleleLinks Vector{AlleleMask}
 
 @doc """AlleleContribs Vector{Dict{UInt128, Float64}}
 
-A data structure in which fitness contributions may be stored.  The ith element
+A data structure in which fitness contributions may be stored. The ith element
 of the vector stores contributions of the allele in the ith least significant
-position. For example, the 4th element of the vector corresponds to the 1 bit
-in the bit string 1000.
+position. For example, the 4th element of the vector corresponds to the locus
+which contains a 1 bit in the bit string 1000.
 
-Each dictionary then maps a bit string into a fitness contribution.  The bit
-string should have 1 bits in the K positions that correspond to the loci
-epistatically linked to the locus that corresponds to the vector element.
+Each dictionary then maps a bit string into a fitness contribution. The bit string should contain all zeros except for the following:
+
+  * The locus that corresponds to the dictionary should contain its actual
+    value, either 1 or 0
+  * The K loci to which the locus above is linked should contain their actual
+    values, either 1 or 0
 """
-# FIXME: This only accounts for the case where the allele in question is 1.
-typealias AlleleContribs Vector{Dict{AlleleMask, Float64}}
+typealias AlleleContribs Vector{Dict{AlleleString, Float64}}
 

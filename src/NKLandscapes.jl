@@ -2,11 +2,11 @@ module NKLandscapes
 
 include("aliases.jl")
 
-include("Landscape.jl")
-include("Genotype.jl")
+include("landscape.jl")
+include("genotype.jl")
 include("Population.jl")
 include("MetaPopulation.jl")
-include("Neighbors.jl")
+include("neighbors.jl")
 include("Walks.jl")
 include("Enumeration.jl")
 

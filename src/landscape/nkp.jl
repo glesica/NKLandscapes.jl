@@ -8,13 +8,13 @@ type NKpLandscape <: Landscape
   k::Int64
   p::Float64
   a::Int64
-  links::Links
-  contribs::Contribs
+  links::AlleleLinks
+  contribs::AlleleContribs
 end
 
 function NKpLandscape(n::Int64, k::Int64, p::Float64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
-  contribs = Contribs()
+  contribs = AlleleContribs()
   return NKpLandscape(n, k, p, a, links, contribs)
 end
 

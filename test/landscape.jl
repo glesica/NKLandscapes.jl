@@ -5,6 +5,8 @@ const NK = NKLandscapes
 
 srand(1)
 
+# TODO: Links gets set up properly on instantiation.
+
 facts("landscape.jl") do
   context("NKLandscape") do
     l = NK.NKLandscape(4, 1)

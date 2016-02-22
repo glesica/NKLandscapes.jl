@@ -5,6 +5,8 @@ const NK = NKLandscapes
 
 srand(1)
 
+# TODO: Contribs gets updated properly when fitness(...) is called.
+
 facts("genotype.jl") do
   landscapes = [
     NK.NKLandscape(4, 1),

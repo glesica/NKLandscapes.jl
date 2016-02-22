@@ -14,7 +14,7 @@ end
 
 function NKpLandscape(n::Int64, k::Int64, p::Float64; a::Int64=2, near::Bool=false)
   links = makelinks(n, k, near)
-  contribs = AlleleContribs()
+  contribs = AlleleContribs(n)
   return NKpLandscape(n, k, p, a, links, contribs)
 end
 

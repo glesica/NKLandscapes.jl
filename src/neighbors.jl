@@ -1,6 +1,6 @@
 export number_neighbors, all_neighbors, random_neighbor,
     neutral_neighbors, fitter_neighbors, fitness_range_neighbors,
-    fittest_neighbors, fittest_neighbor,
+    fittest_neighbors, fittest_neighbor
 
 # TODO: Implement all four of Nowak and Krug's methods.
 

@@ -16,7 +16,7 @@ function makelinks(n::Int64, k::Int64, near::Bool)
   if k >= n
     error("k must be strictly less than n")
   end
-  links = zeros(AlleleMask, k + 1)
+  links = zeros(AlleleMask, n)
   if near
     # TODO: Periodic boundary
     error("Periodic boundary has been yet been implemented")

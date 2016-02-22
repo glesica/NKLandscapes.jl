@@ -9,6 +9,8 @@ type Genotype{T <: Landscape}
   landscape::T
 end
 
+Genotype{T <: Landscape}(alleles::Integer, landscape::T) = Genotype(AlleleString(alleles), landscape)
+
 @doc """contribs(g::Genotype, update::Function)
 
 Return a vector of contributions where the ith element in
@@ -30,13 +32,13 @@ contribs(g::Genotype{NKLandscape}) = contribs(g, () -> rand())
 
 @doc """contribs(g::Genotype)
 """
-contribs(g::Genotype{NKqLandscape}) = contribs(g, () -> rand(0:(ls.q - 1)))
+contribs(g::Genotype{NKqLandscape}) = contribs(g, () -> rand(0:(g.landscape.q - 1)))
 
 @doc """contribs(g::Genotype)
 """
 function contribs(g::Genotype{NKpLandscape})
   update = () -> begin
-    if rand() < ls.p
+    if rand() <g.landscape.p
       return 0.0
     else
       return rand()
@@ -56,5 +58,10 @@ Compute the fitness of a particular genotype.
 """
 fitness(g::Genotype) = mean(contribs(g))
 
-rand(::Type{Genotype}, ls::Landscape) = Genotype(rand(AlleleString), ls)
+function rand(::Type{Genotype}, ls::Landscape)
+  nmask = (AlleleMask(1) << ls.n) - 1
+  Genotype(rand(AlleleString) & nmask, ls)
+end
+
 zeros(::Type{Genotype}, ls::Landscape) = Genotype(0, ls)
+

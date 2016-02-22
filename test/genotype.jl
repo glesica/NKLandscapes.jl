@@ -1,17 +1,18 @@
 using FactCheck
 
-import NKLandscapes as NK
+import NKLandscapes
+const NK = NKLandscapes
 
 srand(1)
 
 facts("genotype.jl") do
   landscapes = [
-    NKLandscape(4, 1),
-    NKqLandscape(4, 1, 2),
-    NKpLandscape(4, 1, 0.90),
+    NK.NKLandscape(4, 1),
+    NK.NKqLandscape(4, 1, 2),
+    NK.NKpLandscape(4, 1, 0.90),
   ]
 
-  for ls = landscape
+  for ls = landscapes
     # The ith locus is linked to the locus i places to its right, assuming a
     # periodic boundary.
     ls.links = [
@@ -23,16 +24,16 @@ facts("genotype.jl") do
 
     context("$(ls)") do
       context("Genotype") do
-        g = Genotype(0b0000, ls)
+        g = NK.Genotype(0b0000, ls)
         @fact g.alleles --> 0b0000
         @fact g.landscape --> ls
       end
 
       context("fitness(...)") do
-        g = Genotype(0b0000, ls)
-        @fact fitness(g) --> less_than_or_equal(1.0)
-        @fact fitness(g) --> greater_than_or_equal(0.0)
-        @fact fitness(g) --> roughly(contribs(g)[1])
+        g = NK.Genotype(0b0000, ls)
+        @fact NK.fitness(g) --> less_than_or_equal(1.0)
+        @fact NK.fitness(g) --> greater_than_or_equal(0.0)
+        @fact NK.fitness(g) --> roughly(NK.contribs(g) |> mean)
       end
 
       context("rand(::Type{Genotype}, ...)") do

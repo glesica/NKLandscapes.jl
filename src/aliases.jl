@@ -40,3 +40,5 @@ Each dictionary then maps a bit string into a fitness contribution. The bit stri
 """
 typealias AlleleContribs Vector{Dict{AlleleString, Float64}}
 
+AlleleContribs(n::Int64) = [Dict{AlleleString, Float64}() for _ = 1:n]
+

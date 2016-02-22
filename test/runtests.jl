@@ -1,5 +1,5 @@
-using NKLandscapes
-using Base.Test
+# Test runner
 
-include("unit.jl")
+include("landscape.jl")
+include("genotype.jl")
 

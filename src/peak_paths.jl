@@ -1,6 +1,25 @@
 #=
-The "fit diff" cost of a path between two genotypes in a landscape is the Hamming distance plus the sum of the
-absolute fitness difference between successive genotypes.
+We are interested in the difficulty of evolving from one fitness peak to another.  One way that this might happen
+is by crossing fitness valleys.  In other words, low fitness genotypes might survive through drift for sufficiently
+long to generate mutations in the basin of attraction of a higher fitness peak.  The work of Sergey Gavrilets suggests 
+that as the dimension increases, neutral paths between peaks become increasely likely.  However, if these neutral paths
+are long, evolution is unlikely to be able to follow them.  So we are interested in paths between peaks which are both
+short and approximately neutral.  The non-neutrality of a path might be defined as the sum of the fitness decreases of
+steps of the path.  
+
+To be more precise, let g_0, g_1, . . . , g_m  be genotypes of a path.  Let D = f(g_m) - f(g_0) be the net fitness
+increase along the path (or decrease if D is negative).  Let F = sum_{i=1}^{m} |f(g_i) - f(g_{i-1})|
+= |f(g_1) - f(g_0)| + |f(g_2) - f(g_1)| + . . . + |f(g_m) - f(g_{m-1})|.  It is not hard to see that the sum of
+the fitness decreases along the path is  (F - D)/2.
+
+Example:  Let the sequence of fitnesses along the path be 2, 0, 3, 1, 2, 1, 4.  The fitness decreaeses are
+(2-0), (3-1), and (2-1), so the non-neutrality is 5.  D = 2 and F = 2 + 3 + 2 + 1 + 1 + 3 = 12.  
+(F - D)/2 = (12 - 2)/2 = 10/2 = 5.
+
+
+of the deleterious mutations.
+The "fit diff" cost F of a path between two genotypes in a landscape is the Hamming distance plus the sum of the
+absolute fitness difference between successive genotypes.  The 
 Computes minimum "fit diff" cost paths between all pairs of peaks (local maxima) of NK landscapes.
 =#
 using Base.Collections
@@ -21,7 +40,7 @@ QueueNode(cur::Int64, prev::Int64, cost::Float64) = QueueNode( cv(cur), cv(prev)
 cv(x) = convert(IntGenotype,x)
 
 function setup(n)
-  include("basins.jl")
+  #include("basins.jl")
   global ls = NKLandscape(n,2)
   global ff = lsfits(ls)
   global bcc = basincounts(basins(ls,ff),ls)
@@ -97,6 +116,17 @@ function test_paths(n,k,num_landscapes)
   @printf("avg_ave_cost:%6.2f std_dev_ave_cost:%6.2f\nn",sum_ave_cost/num_landscapes,std_dev_ave_cost)
 end
     
+@doc """function edge_cost(gtype1::IntGenotype, gtype2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
+
+The cost of a path edge.  See the description at the beginning of this file.
+Note the dependence of the cost on the constant "fit_diff_weight".
+"""
+function edge_cost(gtype1::IntGenotype, gtype2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
+  fit_diff = abs(fits[gtype1+1]-fits[gtype2+1])*ls.n*fit_diff_weight
+  #fit_diff = abs(fitness(gtype1,ls)-fitness(gtype2,ls))*ls.n*fit_diff_weight
+  return 1.0 + fit_diff
+end
+
 
 @doc """function shortest_path_between_peaks(peak1::IntGenotype, peak2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
 
@@ -129,15 +159,15 @@ function shortest_path_between_peaks(peak1::IntGenotype, peak2::IntGenotype, ls:
       push!(closed, ng_node.current)
       #println("closed:",closed)
       for nbr = neighbors(ng_node.current, ls)
-        fit_diff = abs(fitness(nbr,ls)-fitness(ng_node.current,ls))*ls.n*fit_diff_weight
-        heuristic = count_ones( nbr $ peak2 )
-        new_cost = 1.0+fit_diff+heuristic+ng_node.cost
-        #println("cur:",ng_node.current,"  nbr:",nbr,"  cur_cost:",ng_node.cost,"   new_cost:",new_cost,"  heuristic:",heuristic)
+        #fit_diff = abs(fitness(nbr,ls)-fitness(ng_node.current,ls))*ls.n*fit_diff_weight
+        #heuristic = count_ones( nbr $ peak2 )
+        new_cost = edge_cost(nbr,ng_node.current,ls,fits)
+        #println("cur:",ng_node.current,"  nbr:",nbr,"  cur_cost:",ng_node.cost,"   new_cost:",new_cost)
         value = get(queue,nbr,Void)
         if (value == Void) || (value < new_cost)
-          nbr_node = QueueNode(nbr,cons(nbr,ng_node.previous),1.0+fit_diff+ng_node.cost)
-          #println("nbr:",nbr,"  new cost:",nbr_node.cost)
-          queue[nbr_node] = 1.0 + fit_diff + ng_node.cost
+          nbr_node = QueueNode(nbr,cons(nbr,ng_node.previous), new_cost + ng_node.cost)
+          #println("nbr:",nbr,"  nbr cost:",nbr_node.cost)
+          queue[nbr_node] = new_cost + ng_node.cost
         else
           println("value >:  nbr:",nbr,"  new cost:",nbr_node.cost)
         end

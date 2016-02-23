@@ -16,15 +16,16 @@ Example:  Let the sequence of fitnesses along the path be 2, 0, 3, 1, 2, 1, 4.  
 (2-0), (3-1), and (2-1), so the non-neutrality is 5.  D = 2 and F = 2 + 3 + 2 + 1 + 1 + 3 = 12.  
 (F - D)/2 = (12 - 2)/2 = 10/2 = 5.
 
-
-of the deleterious mutations.
 The "fit diff" cost F of a path between two genotypes in a landscape is the Hamming distance plus the sum of the
-absolute fitness difference between successive genotypes.  The 
+absolute fitness difference between successive genotypes.  
+
 Computes minimum "fit diff" cost paths between all pairs of peaks (local maxima) of NK landscapes.
 =#
 using Base.Collections
 using DataStructures
 using NKLandscapes
+
+# Needs considerable "clean up", such as deleting debugging statements, improving documentation, deleting debugging functions, etc.
 
 const fit_diff_weight = 1.0
 
@@ -36,18 +37,29 @@ end
 #QueueNode(cur::UInt64, prev::UInt64, cost::Float64) = QueueNode( cur, prev, cost )
 QueueNode(cur::Int64, prev::Int64, cost::Float64) = QueueNode( cv(cur), cv(prev), cost )
 
+@doc """
 
+Path holds a list of genotypes (the actual path) and the cost of the path.
+To access the first genotype, use  path[1].
+To access the last genotype, use  path[end].
+"""
+type PathWithCost
+  path::Array{IntGenotype,1}
+  cost::Float64
+end
+
+# Utility function for debugging
 cv(x) = convert(IntGenotype,x)
 
+# For degugging----TODO:  move to test file
 function setup(n)
   #include("basins.jl")
   global ls = NKLandscape(n,2)
   global ff = lsfits(ls)
   global bcc = basincounts(basins(ls,ff),ls)
-  global p1 = cv(bcc[1][1])
-  global p2 = cv(bcc[2][1])
+  global p1 = cv(bcc[1].gtype)
+  global p2 = cv(bcc[2].gtype)
 end
-#setup(4)
 
 @doc """function test_paths(n,k,num_landscapes)
 Finds least-cost paths between all pairs of peaks of "num_landscapes" landscapes.
@@ -55,10 +67,8 @@ least-cost paths are computed in both directions as a check for correctness.
 
 Results are printed for each landscape, and summarized for all landscapes.
 
-TODO:  The "uniform cost search" algorithm is basically Djkstra's algorithm which computes the shortest (least cost)
-      paths from any point to all other points.  Thus, doing separate computations for each pair is not efficient.
 TODO:  This function combines testing and reporting.  These functions should be separated.
-TODO:  Each landscape can be a separate thread.
+TODO:  Each landscape could be a separate thread.
 """
 function test_paths(n,k,num_landscapes)
   println("fit diff weight: ",fit_diff_weight)
@@ -75,22 +85,26 @@ function test_paths(n,k,num_landscapes)
     ave_length = 0.0
     min_length = 0.0
     ave_cost = 0.0
+    denom = 0
     bcc = basincounts(basins(ls,fts),ls)
     if length(bcc) > 1
+      spw_dict = Dict{Tuple{IntGenotype,IntGenotype},PathWithCost}()
       i = 1
       for i = 1:length(bcc)
         p1 = bcc[i][1]
-        j = 2
-        for j = (i+1):length(bcc)
-          p2 = bcc[j][1]
-          spw1 = shortest_path_between_peaks(p1,p2,ls,fts)
-          spw2 = shortest_path_between_peaks(p2,p1,ls,fts)
-          @assert length(spw1[1]) == length(spw2[1])
-          @assert isapprox(spw1[2],spw2[2])
-          #println("min_len: ",count_ones( p1 $ p2 ),"  length: ",length(spw1[1])-1,"  cost:",spw1[2])
-          ave_length += (length(spw1[1])-1)
-          ave_cost += spw1[2]
-          min_length += count_ones( p1 $ p2 )  # Hamming distance between peaks plus 1
+        p_set = setdiff!(Set(map(b->b[1],bcc)),p1)
+        spw = least_cost_paths(p1,p_set,ls,fts)
+        for sp in spw   # for each least-cost path
+          opposite_sp = get(spw_dict,(sp.path[end],sp.path[1]),Void)
+          if opposite_sp != Void   # The opposite direction path has already been computed
+            @assert length(sp.path) == length(opposite_sp.path)
+            @assert isapprox(sp.cost,opposite_sp.cost)
+          else
+            ave_length += (length(sp.path)-1)
+            ave_cost += sp.cost
+            min_length += count_ones( sp.path[1] $ sp.path[end] )  # Hamming distance between start and end of path
+            spw_dict[(sp.path[1],sp.path[end])] = sp
+          end
         end
       end
       denom = length(bcc)*(length(bcc)-1)/2
@@ -99,6 +113,7 @@ function test_paths(n,k,num_landscapes)
       ave_cost /=  denom
       @printf("%4d\t%4d\t%4d\t%6.2f\t%6.2f\t%6.2f\n",n,k,length(bcc),min_length,ave_length,ave_cost)
     else
+      # TODO:  Maybe should regenerate the landscape if k is not 0
       println("single peak")
     end
     sum_ave_length += ave_length
@@ -127,32 +142,33 @@ function edge_cost(gtype1::IntGenotype, gtype2::IntGenotype, ls::NKLandscape, fi
   return 1.0 + fit_diff
 end
 
+@doc """function shortest_path_between_peaks(source::IntGenotypes, destinations::Set, ls::NKLandscape, fits::Vector{Float64})
 
-@doc """function shortest_path_between_peaks(peak1::IntGenotype, peak2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
-
- Find the reverse least cost path between two given peaks (local fitness optima) by using A* search 
- TODO:  The "uniform cost search" algorithm is basically Djkstra's algorithm which computes the shortest (least cost)
-      paths from any point to all other points.  Thus, doing separate computations for each pair is not efficient.
- TODO:  Further checking that I have the A* algorithm implemented correctly.
+Find least cost paths from genotype "source" to the genotypes in the list "destinations" using Dijstra's algorithm.
+Returns a list of paths.
  TODO:  Rename variables to be more meaningful.
 """
-function shortest_path_between_peaks(peak1::IntGenotype, peak2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
+function least_cost_paths(source::IntGenotype, destinations::Set, ls::NKLandscape, fits::Vector{Float64})
+  all_paths = PathWithCost[]
+  #destination_set = Set(destinations)
+  destination_set = destinations
   closed = Set()
   queue = Base.Collections.PriorityQueue(QueueNode,Float64)
-  peak1_node = QueueNode(peak1,cons(peak1,nil()),0.0)
-  queue[peak1_node] =0.0
+  source_node = QueueNode(source,cons(source,nil()),0.0)
+  queue[source_node] =0.0
   while !isempty(queue)
     ng_node = Base.Collections.dequeue!(queue)
-    if ng_node.current == peak2
+    if ng_node.current in destination_set
+      setdiff!(destination_set, ng_node.current)
       #println("final ng_node:",ng_node.current,"  ",ng_node.cost)
       len = length(ng_node.previous)
-      result = zeros(IntGenotype,len)
+      path = zeros(IntGenotype,len)
       i = len
       for g in ng_node.previous
-        result[i] = g
+        path[i] = g
         i -= 1
       end
-      return result,ng_node.cost
+      push!(all_paths,PathWithCost(path,ng_node.cost))
     end
     if !in(ng_node.current, closed)
       #println("ng_node:",ng_node.current,"  ",ng_node.cost)
@@ -174,7 +190,7 @@ function shortest_path_between_peaks(peak1::IntGenotype, peak2::IntGenotype, ls:
       end
     end
   end
-  return nil()
+  return all_paths
 end
 
 @doc """function path_cost(path::Array{IntGenotype,1},ls::NKLandscape)

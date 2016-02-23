@@ -1,6 +1,14 @@
 using DataStructures
 using Base.Test
 
+# Needs considerable "clean up", such as deleting debugging statements, improving documentation, deleting debugging functions, etc.
+
+type Basin
+  gtype::IntGenotype
+  count::Int64
+  peak_fitness::Float64
+end
+
 function ranks(s::DisjointSets{IntGenotype})
   return s.internal.ranks
 end
@@ -8,7 +16,6 @@ end
 function parents(s::DisjointSets{IntGenotype})
   return s.internal.parents
 end
-
 
 
 @doc """basins(ls::Landscape)
@@ -32,12 +39,7 @@ function basins1(ls::Landscape)
   return basin_sets
 end
 
-@doc """basins(ls::Landscape, fits::Vector{Float64})
-
-Returns an instance of `IntDisjointSets` that contains, as disjoint sets, the
-basins of attraction (relative to a greedy adaptive walk) present in the given landscape.
-Should only be applied to NKLandscapes (rather than NKpLandscapes or NKqLandscapes at this time.
-"""
+#=  Duplicate function---should be deleted
 function basins1(ls::Landscape, fits::Vector{Float64})
   basin_sets = IntDisjointSets(ls.a^ls.n)
   for ig::IntGenotype = 0:(ls.a^ls.n - 1)
@@ -54,6 +56,7 @@ function basins1(ls::Landscape, fits::Vector{Float64})
   end
   return basin_sets
 end
+=#
 
 function basins(ls::NKLandscape, fits::Vector{Float64})
   basin_sets = DisjointSets{IntGenotype}(collect(0:convert(IntGenotype,(ls.a^ls.n-1))))
@@ -80,28 +83,32 @@ function local_max(x,ls::Landscape)
   return gtoi(gg,ls),fitness(gg,ls)
 end
 
+@doc """function basincounts(basins::DisjointSets{IntGenotype},ls::Landscape)
+
+"""
+
 function basincounts(basins::DisjointSets{IntGenotype},ls::Landscape)
   c = counter(Int64)
   for i = 0:convert(UInt64,(ls.a^ls.n-1))
     #println("i:",convert(Int,i),"  fr(i):",find_root(basins,i)-1)
     push!(c,find_root(basins,i)-1)  # subtracting 1 converts to IntGenotype
   end
-  basin_list = Any[]
+  basin_list = Basin[]
   for k in keys(c)
     (g,fit_g) = local_max(k,ls)
-    #println("k:",k,"  g:",g,"  fit_g:",fit_g)
-    push!(basin_list,(g,c[k],fit_g))
+    println("k:",k,"  g:",g,"  fit_g:",fit_g)
+    push!(basin_list,Basin(g,c[k],fit_g))
   end
   #fit_local_max(x) = fitness(local_max(x),ls)
   #basin_list = map(x -> (gtoi(local_max(x),ls), c[x], fit_local_max(x)), keys(c))
-  sort!(basin_list, by=x -> x[3])  # Sort by fitness
+  sort!(basin_list, by=x -> x.peak_fitness)  # Sort by fitness
   return basin_list
 end
 
 function print_basin_summary(basin_counts)
   @printf("max_gen\tcount\tfitness\n")
   for s in basin_counts
-    @printf("%6d\t%4d\t%.6f\n",s[1],s[2],s[3])
+    @printf("%6d\t%4d\t%.6f\n",s.gtype,s.count,s.peak_fitness)
   end
 end
 
@@ -109,6 +116,7 @@ end
 
 Tests the `basins` function by checking that the final genotype of a greedy adpative walk 
 started from each possible genotype is in the same disjoint set as the starting genotype.
+TODO:  Move this function to test/basins.jl
 """
 function test_basins(ls::NKLandscape, fits::Vector{Float64})
   basins_sets = basins(ls,fits)
@@ -121,10 +129,10 @@ function test_basins(ls::NKLandscape, fits::Vector{Float64})
     gopt = greedy_walk.history_list[:,end]
     iopt = gtoi(gopt,ls)
     @test find_root(basins_sets,ig) == find_root(basins_sets,iopt)
-    print("ig:",ig,"  iopt:",iopt," fit(iopt):",fitness(iopt,ls),"  find_root(basins_sets,ig):",find_root(basins_sets,ig),"  find_root(basins_sets,iopt):",
+    #print("ig:",ig,"  iopt:",iopt," fit(iopt):",fitness(iopt,ls),"  find_root(basins_sets,ig):",find_root(basins_sets,ig),"  find_root(basins_sets,iopt):",
       find_root(basins_sets,iopt))
-    print("  local_max:",local_max(find_root(basins_sets,ig)))
-    println("  fit_max:",fit_local_max(find_root(basins_sets,ig)))
+    #print("  local_max:",local_max(find_root(basins_sets,ig)))
+    #println("  fit_max:",fit_local_max(find_root(basins_sets,ig)))
   end
 end
 
@@ -132,19 +140,20 @@ end
 
 Tests the `basincount` function by checking that the representative
 of each basin is a local maximum.
+TODO:  Move this function to test/basins.jl
 """
 function test_basincounts(ls::NKLandscape, fits::Vector{Float64})
   basin_sets = basins(ls,fits)
   basin_counts = basincounts(basin_sets,ls)
   for b in basin_counts
-    fit_b = fitness(b[1],ls)
-    fn = fittest_neighbor(itog(b[1],ls),ls)
+    fit_b = fitness(b.gtype,ls)
+    fn = fittest_neighbor(itog(b.gtype,ls),ls)
     fit_fn = fitness(fn,ls)
     @test fit_fn < fit_b
   end
 end
     
-      
+# temporary utility function for debugging.  Should be eventually deleted.      
 function bc(ls::NKLandscape)
   lsf = lsfits(ls)
   lsb = basins(ls,lsf)

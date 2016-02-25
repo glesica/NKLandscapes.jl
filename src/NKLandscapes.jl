@@ -15,6 +15,7 @@ include("selection/tournament.jl")
 include("Mutation.jl")
 
 include("Migration.jl")
+include("basins.jl")
 
 end
 #using NKLandscapes

@@ -43,23 +43,23 @@ function add_step!(w::Walk, g::Genotype, f::Float64)
   w.fitnesses = [w.fitnesses; f]
 end
 
-function natural_adaptive_walk(g::Genotype, ls::Landscape)
+function natural_adaptive_walk(g::Genotype)
 end
 
 @doc """An adaptive walk in which a random, fitter neighbor is chosen at each
 step.
 """
-function random_adaptive_walk(g::Genotype, ls::Landscape)
+function random_adaptive_walk(g::Genotype)
   g0 = g
-  f0 = fitness(g0, ls)
+  f0 = fitness(g0)
   w = Walk(:random, g0, f0)
   while true
-    nbrs = fitter_neighbors(g0, ls)
+    nbrs = fitter_neighbors(g0)
     if length(nbrs) == 0
       break
     end
     g0 = nbrs[:,rand(1:end)]
-    f0 = fitness(g0, ls)
+    f0 = fitness(g0)
 
     add_step!(w, g0, f0)
   end
@@ -68,17 +68,17 @@ end
 
 @doc """An adaptive walk in which the fittest neighbor is chosen at each step.
 """
-function greedy_adaptive_walk(g::Genotype, ls::Landscape)
+function greedy_adaptive_walk(g::Genotype)
   g0 = g
-  f0 = fitness(g0, ls)
+  f0 = fitness(g0)
   w = Walk(:greedy, g0, f0)
   while true
-    nbrs = fitter_neighbors(g0, ls)
+    nbrs = fitter_neighbors(g0)
     if length(nbrs) == 0
       break
     end
     g0 = nbrs[:,end]
-    f0 = fitness(g0, ls)
+    f0 = fitness(g0)
 
     add_step!(w, g0, f0)
   end
@@ -88,31 +88,31 @@ end
 @doc """An adaptive walk in which the least fit, fitter neighbor is chosen at
 each step.
 """
-function reluctant_adaptive_walk(g::Genotype, ls::Landscape)
+function reluctant_adaptive_walk(g::Genotype)
   g0 = g
-  f0 = fitness(g0, ls)
+  f0 = fitness(g0)
   w = Walk(:random, g0, f0)
   while true
-    nbrs = fitter_neighbors(g0, ls)
+    nbrs = fitter_neighbors(g0)
     if length(nbrs) == 0
       break
     end
     g0 = nbrs[:,1]
-    f0 = fitness(g0, ls)
+    f0 = fitness(g0)
 
     add_step!(w, g0, f0)
   end
   return w
 end
 
-function generic_neutral_walk(g::Genotype, ls::Landscape, walktype::Symbol, nbrfunc::Function, maxsteps::Int64)
+function generic_neutral_walk(g::Genotype, walktype::Symbol, nbrfunc::Function, maxsteps::Int64)
   g0 = g
-  f0 = fitness(g0, ls)
+  f0 = fitness(g0)
   w = Walk(walktype, g0, f0)
 
   step = 1
   while true
-    nbrs = nbrfunc(g0, ls)
+    nbrs = nbrfunc(g0)
     if length(nbrs) == 0
       break
     end
@@ -125,7 +125,7 @@ function generic_neutral_walk(g::Genotype, ls::Landscape, walktype::Symbol, nbrf
       break
     end
     g0 = nbrs[:,i]
-    f0 = fitness(g0, ls)
+    f0 = fitness(g0)
     add_step!(w, g0, f0)
 
     step += 1
@@ -148,8 +148,8 @@ To avoid cycles, this walk will not revisit genotypes. It uses the
 
 The resulting walk will have no more than `maxsteps` steps.
 """
-function neutral_walk(g::Genotype, ls::Landscape, maxsteps::Int64=0)
-  generic_neutral_walk(g, ls, :neutral, neutral_neighbors, maxsteps)
+function neutral_walk(g::Genotype, maxsteps::Int64=0)
+  generic_neutral_walk(g, :neutral, neutral_neighbors, maxsteps)
 end
 
 @doc """
@@ -163,9 +163,9 @@ To avoid cycles, this walk will not revisit genotypes. It uses the
 
 The resulting walk will have no more than `maxsteps` steps.
 """
-function fitness_range_walk(g::Genotype, ls::Landscape, lb::Float64, ub::Float64, maxsteps::Int64=0)
-  nbrfunc = (g, ls) -> fitness_range_neighbors(g, ls, lb, ub)
-  generic_neutral_walk(g, ls, :fitness_range, nbrfunc, maxsteps)
+function fitness_range_walk(g::Genotype, lb::Float64, ub::Float64, maxsteps::Int64=0)
+  nbrfunc = (g) -> fitness_range_neighbors(g, lb, ub)
+  generic_neutral_walk(g, :fitness_range, nbrfunc, maxsteps)
 end
 
 @doc """
@@ -179,10 +179,10 @@ To avoid cycles, this walk will not revisit genotypes. It uses the
 
 The resulting walk will have no more than `maxsteps` steps.
 """
-function neutral_or_fitter_walk(g::Genotype, ls::Landscape, maxsteps::Int64=0)
+function neutral_or_fitter_walk(g::Genotype, maxsteps::Int64=0)
   # TODO: Considering optimizing so history_set is cleared when fitness changes.
-  nbrfunc = (g, ls) -> fitter_or_equal_neighbors(g, ls, sort=false)
-  generic_neutral_walk(g, ls, :neutral, nbrfunc, maxsteps)
+  nbrfunc = (g) -> fitter_or_equal_neighbors(g, sort=false)
+  generic_neutral_walk(g, :neutral, nbrfunc, maxsteps)
 end
 
 @doc """
@@ -197,15 +197,15 @@ condition.
 
 The resulting walk will have no more than `maxsteps` steps.
 """
-function fitter_then_neutral_walk(g::Genotype, ls::Landscape, maxsteps::Int64=0)
+function fitter_then_neutral_walk(g::Genotype, maxsteps::Int64=0)
   # TODO: Considering optimizing so history_set is cleared when fitness changes.
-  function nbrfunc(g, ls)
-    nbrs = fitter_neighbors(g, ls, sort=false)
+  function nbrfunc(g)
+    nbrs = fitter_neighbors(g, sort=false)
     if length(nbrs) > 0
       return nbrs
     end
-    return neutral_neighbors(g, ls)
+    return neutral_neighbors(g)
   end
-  generic_neutral_walk(g, ls, :fitter_then_neutral, nbrfunc, maxsteps)
+  generic_neutral_walk(g, :fitter_then_neutral, nbrfunc, maxsteps)
 end
 

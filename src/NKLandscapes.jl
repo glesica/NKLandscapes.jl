@@ -7,7 +7,7 @@ include("genotype.jl")
 include("Population.jl")
 include("MetaPopulation.jl")
 include("neighbors.jl")
-include("Walks.jl")
+include("walks.jl")
 include("Enumeration.jl")
 
 include("selection/moran.jl")

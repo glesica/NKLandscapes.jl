@@ -27,14 +27,13 @@ using NKLandscapes
 
 # Needs considerable "clean up", such as deleting debugging statements, improving documentation, deleting debugging functions, etc.
 
-const fit_diff_weight = 1.0
+const fit_diff_weight = 5.0
 
 type QueueNode
   current::IntGenotype
   previous::Cons
   cost::Float64
 end    
-#QueueNode(cur::UInt64, prev::UInt64, cost::Float64) = QueueNode( cur, prev, cost )
 QueueNode(cur::Int64, prev::Int64, cost::Float64) = QueueNode( cv(cur), cv(prev), cost )
 
 @doc """
@@ -70,7 +69,7 @@ Results are printed for each landscape, and summarized for all landscapes.
 TODO:  This function combines testing and reporting.  These functions should be separated.
 TODO:  Each landscape could be a separate thread.
 """
-function test_paths(n,k,num_landscapes)
+function report_paths(n,k,num_landscapes)
   println("fit diff weight: ",fit_diff_weight)
   @printf("   n\t   k\tlen_bcc\tmin_len\tave_len\tave_cst\n")
   sum_ave_length = 0.0
@@ -86,32 +85,26 @@ function test_paths(n,k,num_landscapes)
     min_length = 0.0
     ave_cost = 0.0
     denom = 0
-    bcc = basincounts(basins(ls,fts),ls)
+    bcc = sort(basincounts(basins(ls,fts),ls),lt=(x,y)->x.peak_fitness<y.peak_fitness)
+    g_set = Set(map(b->b.gtype,bcc))   # Set of genotypes
     if length(bcc) > 1
-      spw_dict = Dict{Tuple{IntGenotype,IntGenotype},PathWithCost}()
+      #spw_dict = Dict{Tuple{IntGenotype,IntGenotype},PathWithCost}()
       i = 1
       for i = 1:length(bcc)
-        p1 = bcc[i][1]
-        p_set = setdiff!(Set(map(b->b[1],bcc)),p1)
-        spw = least_cost_paths(p1,p_set,ls,fts)
+        gi = bcc[i].gtype
+        setdiff!(g_set,gi)
+        spw = least_cost_paths(gi,g_set,ls,fts)
         for sp in spw   # for each least-cost path
-          opposite_sp = get(spw_dict,(sp.path[end],sp.path[1]),Void)
-          if opposite_sp != Void   # The opposite direction path has already been computed
-            @assert length(sp.path) == length(opposite_sp.path)
-            @assert isapprox(sp.cost,opposite_sp.cost)
-          else
-            ave_length += (length(sp.path)-1)
-            ave_cost += sp.cost
-            min_length += count_ones( sp.path[1] $ sp.path[end] )  # Hamming distance between start and end of path
-            spw_dict[(sp.path[1],sp.path[end])] = sp
-          end
+          ave_length += length(sp.path)-1
+          ave_cost += sp.cost
+          min_length += count_ones( sp.path[1] $ sp.path[end] )  # Hamming distance between start and end of path
         end
       end
       denom = length(bcc)*(length(bcc)-1)/2
       ave_length /= denom
       min_length /= denom
       ave_cost /=  denom
-      @printf("%4d\t%4d\t%4d\t%6.2f\t%6.2f\t%6.2f\n",n,k,length(bcc),min_length,ave_length,ave_cost)
+      @printf("%4d\t%4d\t%4d\t%6.3f\t%6.3f\t%6.3f\n",n,k,length(bcc),min_length,ave_length,ave_cost)
     else
       # TODO:  Maybe should regenerate the landscape if k is not 0
       println("single peak")
@@ -123,21 +116,22 @@ function test_paths(n,k,num_landscapes)
     sumsq_min_length += min_length^2
     sumsq_ave_cost += ave_cost^2
   end
+  # TODO: denominator num_landscapes is incorrect if there is a single peak
   std_dev_ave_length = sqrt((sumsq_ave_length - sum_ave_length^2/num_landscapes)/(num_landscapes-1))
   std_dev_min_length = sqrt((sumsq_min_length - sum_min_length^2/num_landscapes)/(num_landscapes-1))
   std_dev_ave_cost = sqrt((sumsq_ave_cost - sum_ave_cost^2/num_landscapes)/(num_landscapes-1))
   @printf("avg_min_length:%6.2f  std_dev_min_length:%6.2f\n",sum_min_length/num_landscapes,std_dev_min_length)
   @printf("avg_ave_length:%6.2f  std_dev_ave_length:%6.2f\n",sum_ave_length/num_landscapes,std_dev_ave_length)
-  @printf("avg_ave_cost:%6.2f std_dev_ave_cost:%6.2f\nn",sum_ave_cost/num_landscapes,std_dev_ave_cost)
+  @printf("avg_ave_cost:%6.2f std_dev_ave_cost:%6.2f\n",sum_ave_cost/num_landscapes,std_dev_ave_cost)
 end
     
 @doc """function edge_cost(gtype1::IntGenotype, gtype2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
 
-The cost of a path edge.  See the description at the beginning of this file.
+The cost of a path edge.  
 Note the dependence of the cost on the constant "fit_diff_weight".
 """
 function edge_cost(gtype1::IntGenotype, gtype2::IntGenotype, ls::NKLandscape, fits::Vector{Float64})
-  fit_diff = abs(fits[gtype1+1]-fits[gtype2+1])*ls.n*fit_diff_weight
+  fit_diff = (exp(max(fits[gtype2+1]-fits[gtype1+1],0.0))-exp(0.0))*ls.n*fit_diff_weight
   #fit_diff = abs(fitness(gtype1,ls)-fitness(gtype2,ls))*ls.n*fit_diff_weight
   return 1.0 + fit_diff
 end
@@ -150,8 +144,7 @@ Returns a list of paths.
 """
 function least_cost_paths(source::IntGenotype, destinations::Set, ls::NKLandscape, fits::Vector{Float64})
   all_paths = PathWithCost[]
-  #destination_set = Set(destinations)
-  destination_set = destinations
+  destination_set = copy(destinations)
   closed = Set()
   queue = Base.Collections.PriorityQueue(QueueNode,Float64)
   source_node = QueueNode(source,cons(source,nil()),0.0)

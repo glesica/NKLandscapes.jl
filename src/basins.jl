@@ -1,3 +1,4 @@
+export Basin, basins, basincounts, print_basin_summary
 using DataStructures
 using Base.Test
 
@@ -96,7 +97,7 @@ function basincounts(basins::DisjointSets{IntGenotype},ls::Landscape)
   basin_list = Basin[]
   for k in keys(c)
     (g,fit_g) = local_max(k,ls)
-    println("k:",k,"  g:",g,"  fit_g:",fit_g)
+    #println("k:",k,"  g:",g,"  fit_g:",fit_g)
     push!(basin_list,Basin(g,c[k],fit_g))
   end
   #fit_local_max(x) = fitness(local_max(x),ls)
@@ -130,9 +131,9 @@ function test_basins(ls::NKLandscape, fits::Vector{Float64})
     iopt = gtoi(gopt,ls)
     @test find_root(basins_sets,ig) == find_root(basins_sets,iopt)
     #print("ig:",ig,"  iopt:",iopt," fit(iopt):",fitness(iopt,ls),"  find_root(basins_sets,ig):",find_root(basins_sets,ig),"  find_root(basins_sets,iopt):",
-      find_root(basins_sets,iopt))
-    #print("  local_max:",local_max(find_root(basins_sets,ig)))
-    #println("  fit_max:",fit_local_max(find_root(basins_sets,ig)))
+    #  find_root(basins_sets,iopt))
+    print("  local_max:",local_max(find_root(basins_sets,ig)))
+    println("  fit_max:",fit_local_max(find_root(basins_sets,ig)))
   end
 end
 

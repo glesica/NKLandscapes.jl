@@ -1,4 +1,5 @@
 import Base.Random: rand, zeros
+import Base: isless, isequal
 
 export Genotype, contribs, fitness
 
@@ -64,4 +65,8 @@ function rand(::Type{Genotype}, ls::Landscape)
 end
 
 zeros(::Type{Genotype}, ls::Landscape) = Genotype(0, ls)
+
+isless(left::Genotype, right::Genotype) = fitness(left) < fitness(right)
+
+isequal(left::Genotype, right::Genotype) = fitness(left) == fitness(right)
 

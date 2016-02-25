@@ -10,7 +10,7 @@ function neighbors(g::Genotype)
     for i = 0:(g.landscape.n - 1)
       locusmask = AlleleMask(1) << i
       alleles::AlleleString = g.alleles $ locusmask
-      Genotype(alleles, g.landscape) |> produce
+      produce(Genotype(alleles, g.landscape))
     end
   end)
 end
@@ -25,10 +25,12 @@ end
 
 @doc """all_neighbors(g::Genotype)
 
-Returns a vector that contains all neighbors.
+Returns a vector that contains all neighbors of the given `Genotype`.
 """
 function all_neighbors(g::Genotype; sorted::Bool=true)
-  genotypes = [nbr for nbr = neighbors(g)]
+  genotypes = map(neighbors(g)) do gt
+    return gt
+  end
   return if sorted
     genotypes |> sort
   else
@@ -70,7 +72,7 @@ function fitter_neighbors(g::Genotype; sorted::Bool=true, orequal::Bool=false)
   f0 = fitness(g)
   genotypes = filter(neighbors(g)) do gt
     fitness(gt) > f0
-  end
+  end |> collect
   return if sorted
     genotypes |> sort
   else
@@ -80,14 +82,14 @@ end
 
 @doc """fitness_range_neighbors(g::Genotype, lb::Float64, ub::Float64; sorted::Bool=true)
 
-Returns all neighbors with fitness in the open interval [lb, ub)
-as columns of a matrix, sorted from lowest fitness (left) to highest fitness
+Returns all neighbors with fitness in the half open interval [lb, ub) as
+columns of a matrix, sorted from lowest fitness (left) to highest fitness
 (right).
 """
 function fitness_range_neighbors(g::Genotype, lb::Float64, ub::Float64; sorted::Bool=true)
   genotypes = filter(neighbors(g)) do gt
-    lb <= fitness(gt) <= ub
-  end
+    lb <= fitness(gt) < ub
+  end |> collect
   return if sorted
     genotypes |> sort
   else
@@ -113,9 +115,6 @@ Returns the single fittest neighbor, even if it is less fit than the given
 genotype.
 """
 function fittest_neighbor(g::Genotype)
-  @assert count > 0
-  @assert count <= number_neighbors(g)
-
   return all_neighbors(g)[end]
 end
 

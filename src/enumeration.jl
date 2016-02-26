@@ -4,6 +4,7 @@ export IntGenotype, gtoi, itog, fitness, lsfits, fitlevs, levcounts, neighbors, 
 
 typealias IntGenotype UInt64
 
+#=
 @doc """gtoi(g::Genotype, ls::Landscape)
 
 Convert a `Genotype` to an equivalent integer of base `ls.a`.
@@ -34,18 +35,17 @@ Returns the fitness of the given integer genotype.
 function fitness(g::IntGenotype, ls::Landscape)
   fitness(itog(g, ls), ls)
 end
+=#
 
 @doc """lsfits(ls::Landscape)
 
 Return a vector containing the fitnesses of all possible genotypes for the
-given landscape. The i'th element of the vector will correspond to the
-fitness of the genotype that, when converted to an integer using `gtoi`, has
-the value `i`.
+given landscape. 
 """
 function lsfits(ls::Landscape)
   fits = zeros(Float64, ls.a^ls.n)
-  for i::IntGenotype = 0:(ls.a^ls.n - 1)
-    fits[i + 1] = fitness(i, ls)
+  for i = 0:(ls.a^ls.n - 1)
+    fits[i+1] = fitness(Genotype(i, ls))
   end
   return fits
 end
@@ -107,6 +107,7 @@ function levcounts(ls::Landscape, intervals::Int64)
   levcounts(ls, intervals, lsfits(ls))
 end
 
+#=
 @doc """neighbors(g::IntGenotype, ls::Landscape)
 
 Return a vector of all one-mutant neighbors as integers. We assume
@@ -124,10 +125,11 @@ function neighbors(g::IntGenotype, ls::Landscape)
   end
   return nbrs
 end
+=#
 
 @doc """neutralnet(g::IntGenotype, ls::Landscape, levels::Vector{Int64})
 
-Returns the nodes of the connected neutral network of which the given genotype
+Returns the alleles of the genotypes of the connected neutral network of which the given genotype
 is a part as a vector of `IntGenotype`s. Two genotypes are considered to be
 neighbors if they have the same fitness level. Two genotypes are considered to
 be connected if they are neighbors (they differ at one locus).
@@ -135,17 +137,20 @@ be connected if they are neighbors (they differ at one locus).
 `levels` is a vector of fitness levels, or bins, as returned by the `fitlevs`
 function.
 """
-function neutralnet(g::IntGenotype, ls::Landscape, levels::Vector{Int64})
-  f0 = levels[g + 1]
-  closed = Set()
-  stack = Stack(IntGenotype)
+function neutralnet(g::Genotype, ls::Landscape, levels::Vector{Int64})
+  f0 = levels[g.alleles + 1]
+  closed = Set{AlleleString}()
+  stack = Stack(Genotype)
+  #println("typeof(g): ",typeof(g))
   push!(stack, g)
   while !isempty(stack)
     ng = pop!(stack)
-    if !in(ng, closed)
-      push!(closed, ng)
-      for nbr = filter(nbr -> levels[nbr + 1] == f0, neighbors(ng, ls))
+    #println(" ng:",ng)
+    if !in(ng.alleles, closed)
+      push!(closed, ng.alleles)
+      for nbr = filter(nbr -> levels[nbr.alleles + 1] == f0, all_neighbors(ng))
         push!(stack, nbr)
+        #println("nbr:",nbr)
       end
     end
   end
@@ -159,16 +164,16 @@ connected neutral networks present in the given landscape.
 """
 function neutralnets(ls::Landscape, levels::Vector{Int64})
   nets = IntDisjointSets(ls.a^ls.n)
-  for g::IntGenotype = 0:(ls.a^ls.n - 1)
-    # TODO: Is the find_root call actually necessary?
-    if (find_root(nets, g + 1) != g + 1) || (nets.ranks[g + 1] > 0)
+  for i = 0:(ls.a^ls.n - 1)
+    g = Genotype(i,ls)
+    if (find_root(nets, i + 1) != i + 1) || (nets.ranks[i + 1] > 0)
       continue   # g has already been accounted for
     end
     net = neutralnet(g, ls, levels)
     if length(net) > 0
-      push!(net, g)  # add g to nbrs
+      push!(net, i)  # add i to net
     else
-      net = IntGenotype[g]   # Array containing only i
+      net = AlleleString[i]   # Array containing only i
     end
     for j = 2:length(net)
       union!(nets, net[j - 1] + 1, net[j] + 1)

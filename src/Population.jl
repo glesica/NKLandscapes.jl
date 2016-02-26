@@ -2,34 +2,32 @@ import Base.Random: rand, zeros
 
 export Population, popsize, popfits
 
-typealias Population Matrix{Int64}
+typealias Population Vector{Genotype}
 
+@doc """ function rand(::Type{Population}, ls::Landscape, count::Int64)
+
+Returns a random population of genotypes from landscape ls
+"""
 function rand(::Type{Population}, ls::Landscape, count::Int64)
-  p = zeros(Int64, ls.n, count)
-  for i = 1:count
-    p[:,i] = rand(Genotype, ls)
-  end
-  p
+  Genotype[rand(Genotype,ls) for _=1:count]
 end
 
+@doc """ function zeros(::Type{Population}, ls::Landscape, count::Int64)
+
+Returns a population of zero genotypes from landscape ls
+"""
 function zeros(::Type{Population}, ls::Landscape, count::Int64)
-  p = zeros(Int64, ls.n, count)
-  for i = 1:count
-    p[:,i] = zeros(Genotype, ls)
-  end
-  p
+  Genotype[zeros(Genotype,ls) for _=1:count]
 end
 
-popsize(p::Population) = size(p)[2]
+popsize(p::Population) = length(p)
 
-# Return a vector of fitness values where the ith element in the vector
-# corresponds to the fitness of the ith column of the population matrix.
-function popfits(p::Population, ls::Landscape)
+@doc """function popfits(p::Population)
+
+Returns a vector of the fitnesses of population p
+"""
+function popfits(p::Population)
   n = popsize(p)
-  fs = zeros(Float64, n)
-  for i = 1:n
-    fs[i] = fitness(p[:,i], ls)
-  end
-  fs
+  Float64[ fitness(p[i]) for i=1:n]
 end
 

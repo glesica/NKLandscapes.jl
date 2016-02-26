@@ -32,7 +32,7 @@ function all_neighbors(g::Genotype; sorted::Bool=true)
     return gt
   end
   return if sorted
-    genotypes |> sort
+    sort!(genotypes, by=(g) -> fitness(g))
   else
     genotypes
   end
@@ -74,7 +74,7 @@ function fitter_neighbors(g::Genotype; sorted::Bool=true, orequal::Bool=false)
     fitness(gt) > f0
   end |> collect
   return if sorted
-    genotypes |> sort
+    sort!(genotypes, by=(g) -> fitness(g))
   else
     genotypes
   end
@@ -91,7 +91,7 @@ function fitness_range_neighbors(g::Genotype, lb::Float64, ub::Float64; sorted::
     lb <= fitness(gt) < ub
   end |> collect
   return if sorted
-    genotypes |> sort
+    sort!(genotypes, by=(g) -> fitness(g))
   else
     genotypes
   end

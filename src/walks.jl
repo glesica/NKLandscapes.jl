@@ -15,32 +15,26 @@ export natural_adaptive_walk, random_adaptive_walk, greedy_adaptive_walk,
 `length` - The number of transitions from the original genotype to the ultimate
 optimum. This will be one less than the width of the `history_list` matrix.
 
-`history_list` - Array of genotypes found along the path from the original to
-the optimum. Each genotype is stored in a column.
+`history_list` - Vector of genotypes found along the path from the original to
+the optimum, stored in the order they were observed. The first element is
+always the starting genotype.
 
 `history_set` - Dictionary of genotypes found along the path from the original
 to the optimum. Used in plateau search to avoid repeated states
-
-`fitnesses` - Vector of fitnesses of the genotype visited along the path to the
-optimum. The ith fitness corresponds to the ith column in the `history_list`
-matrix.
 """
 type Walk
   strategy::Symbol
   length::Int64
-  history_list::Matrix{Int64}
+  history_list::Vector{Genotype}
   history_set::Set{Genotype}
-  fitnesses::Vector{Float64}
 end
 
-Walk(s::Symbol, g::Genotype, f::Float64) =
-    Walk(s, 0, reshape(g, (length(g), 1)), Set{Genotype}((g,)), [f])
+Walk(s::Symbol, g::Genotype) = Walk(s, 0, [g], Set{Genotype}([g]))
 
-function add_step!(w::Walk, g::Genotype, f::Float64)
+function add_step!(w::Walk, g::Genotype)
   w.length += 1
-  w.history_list = [w.history_list g]
+  w.history_list = [w.history_list; g]
   push!(w.history_set, g)
-  w.fitnesses = [w.fitnesses; f]
 end
 
 function natural_adaptive_walk(g::Genotype)
@@ -51,17 +45,14 @@ step.
 """
 function random_adaptive_walk(g::Genotype)
   g0 = g
-  f0 = fitness(g0)
-  w = Walk(:random, g0, f0)
+  w = Walk(:random, g0)
   while true
     nbrs = fitter_neighbors(g0)
     if length(nbrs) == 0
       break
     end
-    g0 = nbrs[:,rand(1:end)]
-    f0 = fitness(g0)
-
-    add_step!(w, g0, f0)
+    g0 = nbrs[rand(1:end)]
+    add_step!(w, g0)
   end
   return w
 end
@@ -70,17 +61,15 @@ end
 """
 function greedy_adaptive_walk(g::Genotype)
   g0 = g
-  f0 = fitness(g0)
-  w = Walk(:greedy, g0, f0)
+  w = Walk(:greedy, g0)
   while true
     nbrs = fitter_neighbors(g0)
     if length(nbrs) == 0
       break
     end
-    g0 = nbrs[:,end]
-    f0 = fitness(g0)
+    g0 = nbrs[end]
 
-    add_step!(w, g0, f0)
+    add_step!(w, g0)
   end
   return w
 end
@@ -90,25 +79,22 @@ each step.
 """
 function reluctant_adaptive_walk(g::Genotype)
   g0 = g
-  f0 = fitness(g0)
-  w = Walk(:random, g0, f0)
+  w = Walk(:random, g0)
   while true
     nbrs = fitter_neighbors(g0)
     if length(nbrs) == 0
       break
     end
-    g0 = nbrs[:,1]
-    f0 = fitness(g0)
+    g0 = nbrs[1]
 
-    add_step!(w, g0, f0)
+    add_step!(w, g0)
   end
   return w
 end
 
 function generic_neutral_walk(g::Genotype, walktype::Symbol, nbrfunc::Function, maxsteps::Int64)
   g0 = g
-  f0 = fitness(g0)
-  w = Walk(walktype, g0, f0)
+  w = Walk(walktype, g0)
 
   step = 1
   while true
@@ -120,13 +106,12 @@ function generic_neutral_walk(g::Genotype, walktype::Symbol, nbrfunc::Function, 
     # Choose a new genotype from neutral neighbors
     # or terminate if there isn't one we haven't yet
     # visited.
-    i = findfirst(j -> !(nbrs[:,j] in w.history_set), 1:size(nbrs)[2])
+    i = findfirst(j -> !(nbrs[j] in w.history_set), 1:length(nbrs))
     if i == 0
       break
     end
-    g0 = nbrs[:,i]
-    f0 = fitness(g0)
-    add_step!(w, g0, f0)
+    g0 = nbrs[i]
+    add_step!(w, g0)
 
     step += 1
     if maxsteps > 0 && step > maxsteps
@@ -181,7 +166,7 @@ The resulting walk will have no more than `maxsteps` steps.
 """
 function neutral_or_fitter_walk(g::Genotype, maxsteps::Int64=0)
   # TODO: Considering optimizing so history_set is cleared when fitness changes.
-  nbrfunc = (g) -> fitter_or_equal_neighbors(g, sort=false)
+  nbrfunc = (g) -> fitter_or_equal_neighbors(g, sorted=false)
   generic_neutral_walk(g, :neutral, nbrfunc, maxsteps)
 end
 
@@ -200,7 +185,7 @@ The resulting walk will have no more than `maxsteps` steps.
 function fitter_then_neutral_walk(g::Genotype, maxsteps::Int64=0)
   # TODO: Considering optimizing so history_set is cleared when fitness changes.
   function nbrfunc(g)
-    nbrs = fitter_neighbors(g, sort=false)
+    nbrs = fitter_neighbors(g, sorted=false)
     if length(nbrs) > 0
       return nbrs
     end

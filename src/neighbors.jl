@@ -58,7 +58,7 @@ function neutral_neighbors(g::Genotype)
   f0 = fitness(g)
   return filter(neighbors(g)) do gt
     isapprox(fitness(gt), f0)
-  end
+  end |> collect
 end
 
 @doc """fitter_neighbors(g::Genotype; sorted::Bool=true, orequal::Bool=false)

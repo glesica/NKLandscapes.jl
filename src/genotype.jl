@@ -1,5 +1,5 @@
 import Base.Random: rand, zeros
-import Base: isless, isequal
+import Base: ==, hash
 
 export Genotype, contribs, fitness
 
@@ -66,7 +66,7 @@ end
 
 zeros(::Type{Genotype}, ls::Landscape) = Genotype(0, ls)
 
-isless(left::Genotype, right::Genotype) = fitness(left) < fitness(right)
+==(left::Genotype, right::Genotype) = left.alleles == right.alleles && left.landscape == right.landscape
 
-isequal(left::Genotype, right::Genotype) = fitness(left) == fitness(right)
+hash(g::Genotype) = hash(Genotype) $ hash(g.landscape) $ hash(g.alleles)
 

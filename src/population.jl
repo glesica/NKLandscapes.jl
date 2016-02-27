@@ -2,32 +2,35 @@ import Base.Random: rand, zeros
 
 export Population, popsize, popfits
 
-typealias Population Vector{Genotype}
+@doc """A group of genotypes.
+"""
+type Population
+  genotypes::Vector{Genotype}
+end
 
-@doc """ function rand(::Type{Population}, ls::Landscape, count::Int64)
+@doc """rand(::Type{Population}, ls::Landscape, popsize::Int64)
 
 Returns a random population of genotypes from landscape ls
 """
-function rand(::Type{Population}, ls::Landscape, count::Int64)
-  Genotype[rand(Genotype,ls) for _=1:count]
-end
+rand(::Type{Population}, ls::Landscape, popsize::Int64) =
+    Population([rand(Genotype, ls) for _ = 1:popsize])
 
-@doc """ function zeros(::Type{Population}, ls::Landscape, count::Int64)
+@doc """zeros(::Type{Population}, ls::Landscape, popsize::Int64)
 
 Returns a population of zero genotypes from landscape ls
 """
-function zeros(::Type{Population}, ls::Landscape, count::Int64)
-  Genotype[zeros(Genotype,ls) for _=1:count]
-end
+zeros(::Type{Population}, ls::Landscape, popsize::Int64) =
+    Population([zeros(Genotype, ls) for _ = 1:popsize])
 
-popsize(p::Population) = length(p)
+@doc """popsize(p::Population)
 
-@doc """function popfits(p::Population)
+Returns the size of the population.
+"""
+popsize(p::Population) = length(p.genotypes)
+
+@doc """popfits(p::Population)
 
 Returns a vector of the fitnesses of population p
 """
-function popfits(p::Population)
-  n = popsize(p)
-  Float64[ fitness(p[i]) for i=1:n]
-end
+popfits(p::Population) = [fitness(g) for g = p.genotypes]
 

@@ -2,7 +2,7 @@ import Base.Random: rand
 
 export tournsel, tournsel!
 
-@doc """tournsel(p::Population, ls::Landscape, k::Int64)
+@doc """tournsel(p::Population, k::Int64)
 
 Conduct tournament selection on the population and return a new population. For
 now, we assume `p=1`, so the best individual in the tournament is selected as a
@@ -19,25 +19,25 @@ References:
 
 https://en.wikipedia.org/wiki/Tournament_selection
 """
-function tournsel(p::Population, ls::Landscape, k::Int64)
-  np = copy(p)
-  tournsel!(np, ls, k)
+function tournsel(p::Population, k::Int64)
+  np = Population(p)
+  tournsel!(np, k)
   return np
 end
 
-function tournsel(p::MetaPopulation, ls::Landscape, k::Int64)
-  np = copy(p)
-  tournsel!(np, ls, k)
+function tournsel(mp::MetaPopulation, k::Int64)
+  np = MetaPopulation(mp)
+  tournsel!(np, k)
   return np
 end
 
-@doc """tournsel!(p::Population, ls::Landscape, k::Int64)
+@doc """tournsel!(p::Population, k::Int64)
 
 Conduct tournament selection in-place.
 """
-function tournsel!(p::Population, ls::Landscape, k::Int64)
+function tournsel!(p::Population, k::Int64)
   n = popsize(p)
-  fs = popfits(p, ls)
+  fs = popfits(p)
   selected = zeros(Int64, n)
   for i = 1:n
     # FIXME: This is slow, probably because of indmax over an unsorted list
@@ -45,11 +45,11 @@ function tournsel!(p::Population, ls::Landscape, k::Int64)
     winner = fs[contestants] |> indmax
     selected[i] = contestants[winner]
   end
-  p[:,:] = p[:,selected]
+  p.genotypes[:] = p.genotypes[selected]
 end
 
-function tournsel!(p::MetaPopulation, ls::Landscape, k::Int64)
-  for ip = 1:popct(p)
-    tournsel!(p[:,:,ip], ls, k)
+function tournsel!(mp::MetaPopulation, k::Int64)
+  for p = mp.populations
+    tournsel!(p, k)
   end
 end

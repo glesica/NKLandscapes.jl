@@ -8,15 +8,15 @@ Return a new population such that each locus of each individual in the original
 population has been mutated with probability `mutprob`.
 """
 function bwmutate(p::Population, mutprob::Float64)
-  np = deepcopy(p)
+  np = Population(p)
   bwmutate!(np, mutprob)
   return np
 end
 
 @doc """bwmutate(p::MetaPopulation, ls::Landscape, mutprob::Float64)
 """
-function bwmutate(p::MetaPopulation, mutprob::Float64)
-  np = deepcopy(p)
+function bwmutate(mp::MetaPopulation, mutprob::Float64)
+  np = MetaPopulation(mp)
   bwmutate!(np, mutprob)
   return np
 end
@@ -62,7 +62,7 @@ Return a new population with a single locus of each individual in the original
 population mutated (bit flipped if `ls.a == 2`) with probability `mutprob`.
 """
 function bsmutate(p::Population, mutprob::Float64)
-  np = deepcopy(p)
+  np = Population(p)
   bsmutate!(np, mutprob)
   return np
 end
@@ -70,7 +70,7 @@ end
 @doc """bsmutate(mp::MetaPopulation, mutprob::Float64)
 """
 function bsmutate(mp::MetaPopulation, mutprob::Float64)
-  np = deepcopy(mp)
+  np = MetaPopulation(mp)
   bsmutate!(np, mutprob)
   return np
 end

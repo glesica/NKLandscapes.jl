@@ -1,5 +1,5 @@
 import Base.Random: rand, zeros
-import Base: ==, hash
+import Base: ==, hash, show
 
 export Genotype, contribs, fitness
 
@@ -12,6 +12,8 @@ end
 
 Genotype{T <: Landscape}(alleles::Integer, landscape::T) = Genotype(AlleleString(alleles), landscape)
 
+Genotype{T <: Landscape}(g::Genotype{T}) = Genotype(g.alleles, g.landscape)
+
 @doc """contribs(g::Genotype, update::Function)
 
 Return a vector of contributions where the ith element in
@@ -21,8 +23,8 @@ epistatically linked.
 """
 function contribs(g::Genotype, update::Function)
   return map(1:g.landscape.n) do i
-    linksmask::AlleleMask = g.landscape.links[i]
-    contribstring::AlleleString = g.alleles & linksmask
+    linksmask = AlleleMask(g.landscape.links[i])
+    contribstring = AlleleString(g.alleles & linksmask)
     return get!(update, g.landscape.contribs[i], contribstring)
   end
 end
@@ -48,10 +50,10 @@ function contribs(g::Genotype{NKpLandscape})
   return contribs(g, update)
 end
 
+# TODO: Do we include the fake NKp zeros in the sum or just let the fitness range lower?
 @doc """fitness(g::Genotype{NKqLandscape})
 """
 fitness(g::Genotype{NKqLandscape}) = mean(contribs(g)) / (g.landscape.q - 1)
-  # TODO: Do we include the fake NKp zeros in the sum or just let the fitness range lower?
 
 @doc """fitness(g::Genotype)
 
@@ -66,7 +68,9 @@ end
 
 zeros(::Type{Genotype}, ls::Landscape) = Genotype(0, ls)
 
-==(left::Genotype, right::Genotype) = left.alleles == right.alleles && left.landscape == right.landscape
+==(left::Genotype, right::Genotype) = left.alleles == right.alleles && is(left.landscape, right.landscape)
 
 hash(g::Genotype) = hash(Genotype) $ hash(g.landscape) $ hash(g.alleles)
+
+show(io::Base.IO, g::Genotype) = print(io, "Genotype($(bits(g.alleles)[(end - g.landscape.n + 1):end]), $(g.landscape))")
 

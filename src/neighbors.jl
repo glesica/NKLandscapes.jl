@@ -70,9 +70,15 @@ genotypes of approximately equal fitness will be included.
 """
 function fitter_neighbors(g::Genotype; sorted::Bool=true, orequal::Bool=false)
   f0 = fitness(g)
-  genotypes = filter(neighbors(g)) do gt
-    fitness(gt) > f0
-  end |> collect
+  if !orequal
+    genotypes = filter(neighbors(g)) do gt
+      fitness(gt) > f0
+    end |> collect
+  else
+    genotypes = filter(neighbors(g)) do gt
+      fitness(gt) >= f0
+    end |> collect
+  end
   return if sorted
     sort!(genotypes, by=(g) -> fitness(g))
   else

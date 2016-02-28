@@ -70,7 +70,7 @@ end
 @doc """bsmutate(mp::MetaPopulation, mutprob::Float64)
 """
 function bsmutate(mp::MetaPopulation, mutprob::Float64)
-  np = deepcopy(p)
+  np = deepcopy(mp)
   bsmutate!(np, mutprob)
   return np
 end

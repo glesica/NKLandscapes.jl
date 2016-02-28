@@ -21,6 +21,8 @@ runtests() {
 
 if [ "$#" -eq 0 ]; then
     SUITE="unit"
+else
+    SUITE="$1"
 fi
 
 if [ "$#" -eq 1 ]; then

@@ -14,7 +14,8 @@ include("selection/moran.jl")
 include("selection/proportional.jl")
 include("selection/tournament.jl")
 
-include("mutation.jl")
+include("mutation/bitwise.jl")
+include("mutation/bitstring.jl")
 
 include("Migration.jl")
 

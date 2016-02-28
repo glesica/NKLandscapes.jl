@@ -33,9 +33,7 @@ contribs = NK.AlleleContribs([
 ])
 
 ls = NK.NKLandscape(n, k, a, links, contribs)
-m = [NK.Genotype(alleles, ls) for alleles = 0:7]
-println(m)
-pop = NK.Population(m)
+pop = NK.Population([NK.Genotype(alleles, ls) for alleles = 0:7])
 
 fits = [
   (0.1 + 0.4 + 0.2) / 3.0,
@@ -98,8 +96,6 @@ facts("NKLandscapes.jl fast functional tests") do
         end
       end
     end
-    println(pop.genotypes)
-    println(newpop.genotypes)
     @fact any(c -> c > 1, counts) --> true "Expected a different population after selection"
     oldmean = mean(fits)
     newmean = mean(NK.popfits(newpop))
@@ -108,7 +104,7 @@ facts("NKLandscapes.jl fast functional tests") do
 
   context("NK.moransel(...)") do
     srand(0)
-    newpop = NK.moransel(pop, 8)
+    newpop = NK.moransel(pop, 16)
 
     counts = zeros(Int64, 8)
     for i = 1:8
@@ -131,9 +127,11 @@ facts("NKLandscapes.jl fast functional tests") do
     total = 0.0
     for _ = 1:trials
       newpop = NK.bwmutate(pop, mutprob)
-      total += (pop.genotypes .!= newpop.genotypes) |> sum
+      for i = 1:NK.popsize(pop)
+        total += (pop.genotypes[i].alleles $ newpop.genotypes[i].alleles) |> count_ones
+      end
     end
-    meanmuts = total / (trials * NK.popsize(pop))
+    meanmuts = total / (trials * NK.popsize(pop) * n)
     @fact mutprob --> roughly(meanmuts; atol=mutprob / 10) "Expected $(mutprob) mutrate, found $(meanmuts)"
   end
 

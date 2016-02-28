@@ -9,11 +9,11 @@ such as those that are geographically isolated from one another.
 A meta population can be used in all instances where an ordinary population is
 valid.
 """
-type MetaPopulation{T <: Landscape}
-  populations::Vector{Population{T}}
+type MetaPopulation
+  populations::Vector{Population}
 end
 
-MetaPopulation{T <: Landscape}(mp::MetaPopulation{T}) = MetaPopulation([Population(p) for p = mp.populations])
+MetaPopulation(mp::MetaPopulation) = MetaPopulation([Population(p) for p = mp.populations])
 
 @doc """rand(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64)
 

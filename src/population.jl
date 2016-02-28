@@ -4,11 +4,11 @@ export Population, popsize, popfits
 
 @doc """A group of genotypes.
 """
-type Population{T <: Landscape}
-  genotypes::Vector{Genotype{T}}
+type Population
+  genotypes::Vector{Genotype}
 end
 
-Population{T <: Landscape}(p::Population{T}) = Population([Genotype(g) for g = p.genotypes])
+Population(p::Population) = Population([Genotype(g) for g = p.genotypes])
 
 @doc """rand(::Type{Population}, ls::Landscape, popsize::Int64)
 

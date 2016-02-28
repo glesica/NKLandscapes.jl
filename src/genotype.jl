@@ -41,7 +41,7 @@ contribs(g::Genotype{NKqLandscape}) = contribs(g, () -> rand(0:(g.landscape.q - 
 """
 function contribs(g::Genotype{NKpLandscape})
   update = () -> begin
-    if rand() <g.landscape.p
+    if rand() < g.landscape.p
       return 0.0
     else
       return rand()

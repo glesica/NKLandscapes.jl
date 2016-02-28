@@ -24,7 +24,7 @@ is epistatically linked.
 """
 typealias AlleleLinks Vector{AlleleMask}
 
-@doc """AlleleContribs Vector{Dict{UInt128, Float64}}
+@doc """AlleleContribs Vector{Dict{AlleleString, Float64}}
 
 A data structure in which fitness contributions may be stored. The ith element
 of the vector stores contributions of the allele in the ith least significant

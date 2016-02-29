@@ -17,8 +17,25 @@ function makelinks(n::Int64, k::Int64, near::Bool)
   end
   links = zeros(AlleleMask, n)
   if near
-    # TODO: Periodic boundary
-    error("Periodic boundary has been yet been implemented")
+    # TODO: See if we can come up with a prettier algorithm here.
+    if isodd(k)
+      error("Periodic boundary requires an even-valued K.")
+    end
+    offset = div(k, 2)
+    for i = 1:n
+      mask = AlleleMask(1)
+      for j = (i - offset):(i + offset)
+        next = if j < 1
+          j + n
+        elseif j > n
+          j - n
+        else
+          j
+        end
+        mask = mask | (AlleleMask(1) << next)
+      end
+      links[i] = mask
+    end
   else
     for i = 1:n
       linkedloci = sample(setdiff(0:(n - 1), [i - 1]), k, replace=false)

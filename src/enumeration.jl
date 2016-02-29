@@ -4,39 +4,6 @@ export IntGenotype, gtoi, itog, fitness, lsfits, fitlevs, levcounts, neighbors, 
 
 typealias IntGenotype UInt64
 
-#=
-@doc """gtoi(g::Genotype, ls::Landscape)
-
-Convert a `Genotype` to an equivalent integer of base `ls.a`.
-
-This operation is limited by the size of a `UInt64`. For example, if `ls.a` is
-two, then the genotype must be of length length than or equal to 64.
-"""
-function gtoi(g::Genotype, ls::Landscape)
-  sum::IntGenotype = g[1] - 1
-  for i = 2:length(g)
-    sum = ls.a * sum + g[i] - 1
-  end
-  return sum
-end
-
-@doc """itog(n::IntGenotype, ls::Landscape)
-
-Convert an integer of base `ls.a` to an equivalent `Genotype`.
-"""
-function itog(g::IntGenotype, ls::Landscape)
-  return [parse(Int64, allele, ls.a) + 1 for allele = base(ls.a, g, ls.n)]
-end
-
-@doc """fitness(g::IntGenotype, ls::Landscape)
-
-Returns the fitness of the given integer genotype.
-"""
-function fitness(g::IntGenotype, ls::Landscape)
-  fitness(itog(g, ls), ls)
-end
-=#
-
 @doc """lsfits(ls::Landscape)
 
 Return a vector containing the fitnesses of all possible genotypes for the
@@ -137,20 +104,17 @@ be connected if they are neighbors (they differ at one locus).
 `levels` is a vector of fitness levels, or bins, as returned by the `fitlevs`
 function.
 """
-function neutralnet(g::Genotype, ls::Landscape, levels::Vector{Int64})
+function neutralnet(g::Genotype, levels::Vector{Int64})
   f0 = levels[g.alleles + 1]
   closed = Set{AlleleString}()
   stack = Stack(Genotype)
-  #println("typeof(g): ",typeof(g))
   push!(stack, g)
   while !isempty(stack)
     ng = pop!(stack)
-    #println(" ng:",ng)
     if !in(ng.alleles, closed)
       push!(closed, ng.alleles)
       for nbr = filter(nbr -> levels[nbr.alleles + 1] == f0, all_neighbors(ng))
         push!(stack, nbr)
-        #println("nbr:",nbr)
       end
     end
   end
@@ -169,7 +133,7 @@ function neutralnets(ls::Landscape, levels::Vector{Int64})
     if (find_root(nets, i + 1) != i + 1) || (nets.ranks[i + 1] > 0)
       continue   # g has already been accounted for
     end
-    net = neutralnet(g, ls, levels)
+    net = neutralnet(g, levels)
     if length(net) > 0
       push!(net, i)  # add i to net
     else

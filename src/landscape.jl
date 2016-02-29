@@ -2,6 +2,7 @@ import Base.show
 
 export Landscape, prob_neutral
 
+# TODO:  Revise this documentation:  I think it is incorrect (AHW)
 # Generate a table describing the epistatic links between loci. If `near` is
 # `true`, then links will be generated between a locus `i` and its `k / 2`
 # neighbors to either side, assuming a periodic boundary at the ends of the

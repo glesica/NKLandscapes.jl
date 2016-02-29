@@ -13,6 +13,10 @@ type NKpLandscape <: Landscape
 end
 
 function NKpLandscape(n::Int64, k::Int64, p::Float64; a::Int64=2, near::Bool=false)
+  if a != 2
+    # TODO:  implement a values other than 2
+    error("only a == 2 is implemented at this time")
+  end
   links = makelinks(n, k, near)
   contribs = AlleleContribs(n)
   return NKpLandscape(n, k, p, a, links, contribs)

@@ -4,10 +4,10 @@ import NKLandscapes
 const NK = NKLandscapes
 using FactCheck
 
-n = 3    # n is arbitrary as long as n >= 3, but larger n may give a better test
+n = 4    # n is arbitrary as long as n >= 3, but larger n may give a better test
 k = 0    # k must be 0 for these tests to work
-q = 2
-#a = 3    # a must be 2 for some of the neutral nets functions to work
+q = 2    # q is the number of possible values for a contrib in NKq landscapes
+a = 2    # Only a = 2 is implemented at this time
 
 # Since k == 0, ls has a single minimum fitness neutral net and a single
 # maximum fitness neutral net. Works for either an NKq landscape or an NK
@@ -22,17 +22,13 @@ end
 function LandscapeProperties(ls::NK.Landscape)
   fa = NK.lsfits(ls)
   fl = NK.fitlevs(ls, ls.n, fa)
-  min_g = Genotype(indmin(fa) - 1, ls)
+  min_g = NK.Genotype(indmin(fa) - 1, ls)
   LandscapeProperties(ls, fa, fl, min_g)
 end
 
-lsp_nk2 = LandscapeProperties(NK.NKLandscape(n, k, a=2))
-lsp_nk3 = LandscapeProperties(NK.NKLandscape(n, k, a=3))
-lsp_nkq2 = LandscapeProperties(NK.NKqLandscape(n, k, q, a=2))
-lsp_nkq3 = LandscapeProperties(NK.NKqLandscape(n, k, q, a=3))
-# TODO:  neutralnets currently fails for a=3.  Debug.
-#lsp_list = [lsp_nk2, lsp_nk3, lsp_nkq2, lsp_nkq3]
-lsp_list = [lsp_nk2, lsp_nkq2 ]
+lsp_nk = LandscapeProperties(NK.NKLandscape(n, k))
+lsp_nkq = LandscapeProperties(NK.NKqLandscape(n, k, q))
+lsp_list = [lsp_nk, lsp_nkq ]
 
 facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
   context("NK.neighbors(...)") do
@@ -60,29 +56,24 @@ facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
     for lsp in lsp_list
       max_fit = maximum(lsp.fa)
       rand_w = NK.random_adaptive_walk(lsp.min_g)
-      @fact max_fit --> roughly(fitness(rand_w.history_list[end]))
+      @fact max_fit --> roughly(NK.fitness(rand_w.history_list[end]))
         "Expected final fitness of random adaptive walk to be maximum fitness of landscape which is $max_fit"
       greedy_w = NK.greedy_adaptive_walk(lsp.min_g)
-      @fact max_fit --> roughly(fitness(greedy_w.history_list[end]))
+      @fact max_fit --> roughly(NK.fitness(greedy_w.history_list[end]))
         "Expected final fitness of greedy adaptive walk to be maximum fitness of landscape which is $max_fit"
       reluct_w = NK.reluctant_adaptive_walk(lsp.min_g)
-      @fact max_fit --> roughly(fitness(reluct_w.history_list[end]))
+      @fact max_fit --> roughly(NK.fitness(reluct_w.history_list[end]))
         "Expected final fitness of reluctant adaptive walk to be maximum fitness of landscape which is $max_fit"
       fit_neutral_w = NK.fitter_then_neutral_walk(lsp.min_g)
-      @fact max_fit --> roughly(fitness(fit_neutral_w.history_list[end]))
+      @fact max_fit --> roughly(NK.fitness(fit_neutral_w.history_list[end]))
         "Expected final fitness of fitter_then_neutral adaptive walk to be maximum fitness of landscape which is $max_fit"
     end
   end
 
   context("NK.netcounts(...)") do
-    cc = 1
     for lsp in lsp_list
-      println("cc:",cc)
-      cc += 1
       dsets = NK.neutralnets(lsp.ls, lsp.fl)
-      println("dsets:",dsets)
       lnn = NK.netcounts(dsets, lsp.fl)
-      println("length(lnn):",length(lnn))
       sort!(lnn, by=x -> x[3])
       if length(lnn) > 1
         @fact lnn[end][3] --> greater_than(lnn[end-1][3])  "Expected a single neutral net of maximum fitness"

@@ -6,7 +6,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SUITE=""
 
 usage() {
-    echo "Usage: ./runtests.sh [unit|fastfunc|kauffman|nowak]"
+    echo "Usage: ./runtests.sh [unit|fastfunc|fastnets|kauffman|nowak]"
     echo ""
     echo "  Run the test suite specified by the provided argument."
     echo "  Omitting the argument is the same as specifying 'unit'."

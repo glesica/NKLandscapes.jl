@@ -1,8 +1,6 @@
 using DataStructures
 
-export IntGenotype, gtoi, itog, fitness, lsfits, fitlevs, levcounts, neighbors, neutralnet, neutralnets
-
-typealias IntGenotype UInt64
+export fitness, lsfits, fitlevs, levcounts, neighbors, neutralnet, neutralnets
 
 @doc """lsfits(ls::Landscape)
 
@@ -74,30 +72,10 @@ function levcounts(ls::Landscape, intervals::Int64)
   levcounts(ls, intervals, lsfits(ls))
 end
 
-#=
-@doc """neighbors(g::IntGenotype, ls::Landscape)
-
-Return a vector of all one-mutant neighbors as integers. We assume
-that `ls.a == 2`.
-"""
-function neighbors(g::IntGenotype, ls::Landscape)
-  if ls.a != 2
-    error("Only landscapes with a=2 are currently supported by neighbors().")
-  end
-  nbrs = zeros(IntGenotype, ls.n)
-  single_bit = convert(UInt64,0x1)
-  for i = 0:(ls.n - 1)
-    nbrs[i + 1] = g $ single_bit
-    single_bit <<= 1
-  end
-  return nbrs
-end
-=#
-
-@doc """neutralnet(g::IntGenotype, ls::Landscape, levels::Vector{Int64})
+@doc """ function neutralnet(g::Genotype, levels::Vector{Int64})
 
 Returns the alleles of the genotypes of the connected neutral network of which the given genotype
-is a part as a vector of `IntGenotype`s. Two genotypes are considered to be
+is a part as a vector of `AlleleString`s. Two genotypes are considered to be
 neighbors if they have the same fitness level. Two genotypes are considered to
 be connected if they are neighbors (they differ at one locus).
 

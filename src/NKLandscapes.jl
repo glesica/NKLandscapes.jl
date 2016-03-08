@@ -21,7 +21,6 @@ include("mutation/bitstring.jl")
 include("migration.jl")
 
 include("basins.jl")
-include("peak_paths.jl")
 
 end
 

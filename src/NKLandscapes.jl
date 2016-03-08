@@ -18,7 +18,6 @@ include("mutation/bitwise.jl")
 include("mutation/bitstring.jl")
 
 include("basins.jl")
-include("peak_paths.jl")
 
 include("Migration.jl")
 

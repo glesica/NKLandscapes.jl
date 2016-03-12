@@ -14,12 +14,13 @@ TODO:  This introductory summary could be improved.
 =#
 export edge_cost_exp, edge_cost_sym, least_cost_paths, PathWintCost, LandscapePathSummary, summary_landscape_paths
 using Base.Collections
+using Base.Test
 using DataStructures
 using NKLandscapes
 
 # Two important parameters:
-const fit_diff_weight = 5.0  # Weight on fitness differences as opposed to mutational steps.
-const dist_cutoff = 3    # Only paths between pairs of peaks closer to each other than this cutoff are considered
+fit_diff_weight = 8.0  # Weight on fitness differences as opposed to mutational steps.
+dist_cutoff = 4    # Only paths between pairs of peaks closer to each other than this cutoff are considered
 
 @doc """ type Path
 
@@ -35,7 +36,7 @@ end
 
 @doc """ function edge_cost_exp(gtype1::AlleleString, gtype2::AlleleString, ls::NKLandscape, fits::Vector{Float64})
 
-The exponential of a cost of a path edge mulitiplied by landscape length and paramter fit_diff_weight
+The exponential of a cost of a path edge mulitiplied by landscape length and parameter fit_diff_weight
 Nonzero only when the fitess differens from gtype1 to gtype2 is negative.
 Note the dependence of the cost on the constant "fit_diff_weight".
 """
@@ -205,7 +206,7 @@ For each of "num_landscapes" landscapes, finds least-cost paths from each peak t
 Results are printed for each landscape, and summarized for all landscapes.
 Processing of landscapes is distributed across processes, so this function will run faster with multiple processes.
 """
-function print_paths_summary(n,k,num_landscapes)
+function print_paths_summary(n, k, num_landscapes )
   @assert num_landscapes > 1
   println("fit diff weight: ",fit_diff_weight)
   println("dist_cutoff: ",dist_cutoff)

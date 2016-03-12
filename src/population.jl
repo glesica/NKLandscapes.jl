@@ -1,6 +1,6 @@
-import Base.Random: rand, zeros
+import Base.Random: rand, zeros 
 
-export Population, popsize, popfits
+export Population, popsize, popfits, constant
 
 @doc """A group of genotypes.
 """
@@ -23,6 +23,13 @@ Returns a population of zero genotypes from landscape ls
 """
 zeros(::Type{Population}, ls::Landscape, popsize::Int64) =
     Population([zeros(Genotype, ls) for _ = 1:popsize])
+
+@doc """ constant(::Type{Population}, gtype::Genotype, popsize::Int64) =
+
+Returns  population initalized to popsize copies of genotype gtype 
+"""
+constant(::Type{Population}, gtype::Genotype, popsize::Int64) =
+    Population([gtype for _ = 1:popsize])
 
 @doc """popsize(p::Population)
 

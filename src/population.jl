@@ -34,5 +34,5 @@ popsize(p::Population) = length(p.genotypes)
 
 Returns a vector of the fitnesses of population p
 """
-popfits(p::Population) = [fitness(g) for g = p.genotypes]
+popfits(p::Population) = Float64[fitness(g) for g = p.genotypes]
 

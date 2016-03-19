@@ -1,4 +1,4 @@
-export Basin, basins, basinlists! 
+export Basin, basins, basinlist!, basinlist
 using DataStructures
 using Base.Test
 
@@ -18,7 +18,7 @@ end
 Returns an instance of `IntDisjointSets` that contains, as disjoint sets, the
 basins of attraction (relative to a greedy adaptive walk) present in the given landscape.
 The root of the basin of attraction is not necessarily the corresponding local optimum
-(but this property holds after basinlists!() is callled).
+(but this property holds after basinlist!() is callled).
 The optional argument fits is an array of the fitnesses of the genotypes of the landscape.
 Should only be applied to NKLandscapes (rather than NKpLandscapes or NKqLandscapes at this time.
 """
@@ -48,27 +48,6 @@ function basins(ls::NKLandscape, fits::Vector{Float64}=zeros(Float64,0))
   return basin_sets
 end
 
-#= This version uses a DisjointSets data structure rather than an IntDisjointSets data structure
-For the time being, it is "archived" here as an alternative, perhaps more readable, approach.
-function basins(ls::NKLandscape, fits::Vector{Float64})
-  basin_sets = DisjointSets{IntGenotype}(collect(0:convert(IntGenotype,(ls.a^ls.n-1))))
-  for ig::IntGenotype = 0:(ls.a^ls.n - 1)
-    fg = fits[ig+1]
-    g = itog(ig,ls)
-    fittest = fittest_neighbor(g,ls)
-    ifittest = gtoi(fittest,ls)
-    if fits[ifittest+1] <= fg
-      #println(" no union")
-      continue
-    else
-      union!(basin_sets,ig,ifittest)
-      #println("    union")
-    end
-  end
-  return basin_sets
-end
-=#
-
 @doc """ function local_max(g::Genotype)  
 
 Find the fitness of the corresponding local maximum
@@ -90,13 +69,13 @@ function change_root!(s::IntDisjointSets, new_root::UInt128)
   s.parents[new_root] = new_root
 end
 
-@doc """ function basinlists!(basins::IntDisjointSets,ls::Landscape)
+@doc """ function basinlist!(basins::IntDisjointSets,ls::Landscape)
 
 Returns a list of basins of attractions (each of type Basin) sorted by fitness.
 Also modifies the IntDisjointSets data structure  s  so that the root of each set
 is the corresponding peak (local optimum under greedy adaptive walk).
 """
-function basinlists!(basins::IntDisjointSets,ls::NKLandscape)
+function basinlist!(basins::IntDisjointSets,ls::NKLandscape)
   c = counter(Int64)
   for i = 0:(ls.a^ls.n-1)
     push!(c,find_root(basins,i+1)-1)  
@@ -110,6 +89,17 @@ function basinlists!(basins::IntDisjointSets,ls::NKLandscape)
   end
   sort!(basin_list, by=x -> x.peak_fitness)  # Sort by fitness
   return basin_list
+end
+
+@doc """ function basinlist(ls::NKLandscape, fits::Vector{Float64}=zeros(Float64,0))
+
+Returns a pair consisting of the list of basins and the IntDisjointSet data structure
+   that represents the basisns
+"""
+function basinlist(ls::NKLandscape, fits::Vector{Float64}=zeros(Float64,0))
+  bsns = basins(ls,fits)
+  bsnlsts = basinlist!(bsns,ls)
+  (bsnlsts, bsns)
 end
 
 @doc """ function ranks(s::IntDisjointSets)

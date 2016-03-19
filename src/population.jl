@@ -1,4 +1,5 @@
 import Base.Random: rand, zeros 
+using NKLandscapes
 
 export Population, popsize, popfits, constant
 
@@ -42,4 +43,13 @@ popsize(p::Population) = length(p.genotypes)
 Returns a vector of the fitnesses of population p
 """
 popfits(p::Population) = Float64[fitness(g) for g = p.genotypes]
+
+show(io::Base.IO, p::Population) = print(io, map(gbits,p.genotypes))
+
+function gbits(g::Genotype)
+  "$(bits(g.alleles)[(end - g.landscape.n + 1):end])"
+end
+
+
+pbits(p::Population) = "$gbits(p.genotypes)[1:end]"
 

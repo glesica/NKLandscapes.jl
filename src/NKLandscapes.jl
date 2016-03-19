@@ -13,6 +13,7 @@ include("enumeration.jl")
 include("selection/moran.jl")
 include("selection/proportional.jl")
 include("selection/tournament.jl")
+include("selection/elite.jl")
 
 include("mutation/bitwise.jl")
 include("mutation/bitstring.jl")

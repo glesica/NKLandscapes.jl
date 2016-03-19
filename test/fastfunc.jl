@@ -120,6 +120,32 @@ facts("NKLandscapes.jl fast functional tests") do
     @fact oldmean --> less_than(newmean) "Expected greater mean fitness after selection"
   end
 
+  context("NK.elitesel(...)") do
+    srand(0)
+    newpop = NK.elitesel(pop, 2)
+
+    counts = zeros(Int64, 8)
+    for i = 1:8
+      for j = 1:8
+        if newpop.genotypes[i] == pop.genotypes[j]
+          counts[j] += 1
+        end
+      end
+    end
+    @fact any(c -> c > 1, counts) --> true "Expected a different population after selection"
+    @fact newpop.genotypes |> unique |> length --> 2 "Expected two genotypes in new population"
+    oldmean = mean(fits)
+    newmean = mean(NK.popfits(newpop))
+    @fact oldmean --> less_than(newmean) "Expected greater mean fitness after selection"
+    elites = sort(pop.genotypes, by=(g) -> NK.fitness(g))[end-1:end]
+    for g = newpop.genotypes
+      @fact g --> anyof(elites...) "Expected members of new population to be elites"
+    end
+    for g = elites
+      @fact g --> anyof(newpop.genotypes...) "Expected all elites to be present in new population"
+    end
+  end
+
   context("NK.bwmutate(...)") do
     srand(0)
     trials = 1000

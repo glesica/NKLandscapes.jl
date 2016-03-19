@@ -23,6 +23,14 @@ function bwmutate(mp::MetaPopulation, mutprob::Float64)
   return np
 end
 
+@doc """bwmutate(g::Genotype, mutprob::Float64)
+"""
+function bwmutate(g::Genotype, mutprob::Float64)
+  ng = Genotype(g)
+  bwmutate!(ng, mutprob)
+  return ng
+end
+
 @doc """bwmutate!(g::Genotype, mutprob::Float64)
 
 Mutate the genotype in-place by mutating each locus with probability `mutprob`.

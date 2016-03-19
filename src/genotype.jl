@@ -1,7 +1,7 @@
 import Base.Random: rand, zeros
-import Base: ==, hash, show
+import Base: ==, hash, show 
 
-export Genotype, contribs, fitness
+export Genotype, contribs, fitness, gbits
 
 @doc """A genotype representation.
 """
@@ -73,4 +73,8 @@ zeros(::Type{Genotype}, ls::Landscape) = Genotype(0, ls)
 hash(g::Genotype) = hash(Genotype) $ hash(g.landscape) $ hash(g.alleles)
 
 show(io::Base.IO, g::Genotype) = print(io, "Genotype($(bits(g.alleles)[(end - g.landscape.n + 1):end]), $(g.landscape))")
+#show(io::Base.IO, g::Genotype) = print(io, "$(bits(g.alleles)[(end - g.landscape.n + 1):end])")
 
+function gbits(g::Genotype)
+  "$(bits(g.alleles)[(end - g.landscape.n + 1):end])"
+end

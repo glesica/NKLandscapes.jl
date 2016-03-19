@@ -43,7 +43,7 @@ function moransel!(p::Population, iters::Int64)
       end
     end
 
-    p.genotypes[indkill] = p.genotypes[indbirth]
+    p.genotypes[indkill] = Genotype(p.genotypes[indbirth])
   end
 end
 

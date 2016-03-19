@@ -13,8 +13,6 @@ Note that sampling is done with replacement, so even if `k` is equal to the
 population size, there is no guarantee that every individual will participate
 in each tournament.
 
-The current implementation is incredibly inefficient and should not be used.
-
 References:
 
 https://en.wikipedia.org/wiki/Tournament_selection
@@ -35,17 +33,18 @@ end
 
 Conduct tournament selection in-place.
 """
-function tournsel!(p::Population, k::Int64)
+function tournsel!(p::Population, k::Int64; fs::Vector{Float64}=zeros(Float64,0))
   n = popsize(p)
-  fs = popfits(p)
+  if length(fs) == 0
+    fs = popfits(p)
+  end
   selected = zeros(Int64, n)
   for i = 1:n
-    # FIXME: This is slow, probably because of indmax over an unsorted list
     contestants = rand(1:n, k)
     winner = fs[contestants] |> indmax
     selected[i] = contestants[winner]
   end
-  p.genotypes[:] = p.genotypes[selected]
+  p.genotypes[:] = [Genotype(p.genotypes[selected[i]]) for i = 1:n]
 end
 
 function tournsel!(mp::MetaPopulation, k::Int64)

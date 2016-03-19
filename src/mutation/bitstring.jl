@@ -21,6 +21,16 @@ function bsmutate(mp::MetaPopulation, mutprob::Float64)
   return np
 end
 
+@doc """bsmutate(g::Genotype, mutprob::Float64)
+"""
+function bsmutate(g::Genotype, mutprob::Float64)
+  ng = Genotype(g)
+  if rand() < mutprob
+    bsmutate!(ng)
+  end
+  return ng
+end
+
 @doc """bsmutate!(g::Genotype)
 
 Mutate a single locus within the given genotype.

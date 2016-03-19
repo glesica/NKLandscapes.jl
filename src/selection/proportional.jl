@@ -52,7 +52,7 @@ function propsel!(p::Population)
     end
   end
 
-  p.genotypes[:] = p.genotypes[selected]
+  p.genotypes = [Genotype(p.genotypes[selected[i]]) for i = 1:n]
 end
 
 function propsel!(mp::MetaPopulation)

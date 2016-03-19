@@ -44,7 +44,7 @@ function tournsel!(p::Population, k::Int64; fs::Vector{Float64}=zeros(Float64,0)
     winner = fs[contestants] |> indmax
     selected[i] = contestants[winner]
   end
-  p.genotypes = [Genotype(p.genotypes[selected[i]]) for i = 1:n]
+  p.genotypes[:] = [Genotype(p.genotypes[selected[i]]) for i = 1:n]
 end
 
 function tournsel!(mp::MetaPopulation, k::Int64)

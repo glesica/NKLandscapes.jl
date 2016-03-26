@@ -1,11 +1,6 @@
-using FactCheck
-
-import NKLandscapes
-const NK = NKLandscapes
-
 srand(1)
 
-facts("migration.jl") do
+context("migration.jl") do
   # We use complex landscapes here to ensure there are no accidental
   # duplicates.
   landscapes = [

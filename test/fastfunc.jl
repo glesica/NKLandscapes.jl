@@ -1,7 +1,4 @@
-using FactCheck
-
-import NKLandscapes
-const NK = NKLandscapes
+srand(1)
 
 n = 3
 k = 1
@@ -46,7 +43,7 @@ fits = [
   (0.4 + 0.1 + 0.3) / 3.0
 ]
 
-facts("NKLandscapes.jl fast functional tests") do
+context("Fast functional tests") do
   context("NK.fitness(...)") do
     function testfitness(g, f0)
       f1 = NK.fitness(g)

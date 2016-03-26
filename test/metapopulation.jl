@@ -1,16 +1,11 @@
-using FactCheck
-
-import NKLandscapes
-const NK = NKLandscapes
-
-const pcount = 4
-const psize = 2
+pcount = 4
+psize = 2
 
 srand(1)
 
 # TODO: Links gets set up properly on instantiation.
 
-facts("metapopulation.jl") do
+context("metapopulation.jl") do
   landscapes = [
     NK.NKLandscape(4, 1),
     NK.NKqLandscape(4, 1, 2),

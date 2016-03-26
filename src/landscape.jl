@@ -23,16 +23,16 @@ function makelinks(n::Int64, k::Int64, near::Bool)
     end
     offset = div(k, 2)
     for i = 1:n
-      mask = AlleleMask(1)
+      mask = AlleleMask(0)
       for j = (i - offset):(i + offset)
-        next = if j < 1
-          j + n
+        shift = if j < 1
+          j + n - 1
         elseif j > n
-          j - n
+          j - n - 1
         else
-          j
+          j - 1
         end
-        mask = mask | (AlleleMask(1) << next)
+        mask = mask | (AlleleMask(1) << shift)
       end
       links[i] = mask
     end

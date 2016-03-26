@@ -18,7 +18,7 @@ function NKpLandscape(n::Int64, k::Int64, p::Float64; a::Int64=2, near::Bool=fal
     error("only a == 2 is implemented at this time")
   end
   links = makelinks(n, k, near)
-  contribs = AlleleContribs(n)
+  contribs = newAlleleContribs(n)
   return NKpLandscape(n, k, p, a, links, contribs)
 end
 

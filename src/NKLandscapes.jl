@@ -18,7 +18,7 @@ include("selection/elite.jl")
 include("mutation/bitwise.jl")
 include("mutation/bitstring.jl")
 
-include("Migration.jl")
+include("migration.jl")
 
 end
 

@@ -30,19 +30,21 @@ end
 
 Conduct migration in-place.
 """
-# TODO: Make a pristine copy and take migrants from it?
-# TODO: Track in-migrants separately and add them at the end?
-# TODO: Second option seems more promising...
 function migrate!(p::MetaPopulation, migprob::Float64, migct::Int64)
-  for dstpop = p.populations
+  # We copy the meta population so that we have a source of purely original
+  # genotypes. This is not optimal but should be fine.
+  pristine = MetaPopulation(p)
+  count = popct(p)
+  for dstind = 1:count
     if rand() >= migprob
       continue
     end
-    srcpops = sample(p.populations, 2, replace=false)
-    srcpop = if srcpops[1] != dstpop
-      srcpops[1]
+    dstpop = p.populations[dstind]
+    srcinds = sample(1:count, 2, replace=false)
+    srcpop = if srcinds[1] != dstind
+      pristine.populations[srcinds[1]]
     else
-      srcpops[2]
+      pristine.populations[srcinds[2]]
     end
     popmigrate!(dstpop, srcpop, migct)
   end
@@ -70,20 +72,21 @@ end
 Conduct linear migration in-place.
 """
 function linmigrate!(p::MetaPopulation, migprob::Float64, migct::Int64)
+  pristine = MetaPopulation(p)
   count = popct(p)
-  for i = 1:count
+  for dstind = 1:count
     if rand() >= migprob
       continue
     end
-    dstpop = p.populations[i]
-    nbrinds = if i == 1
-      [count, i + 1]
-    elseif i == count
-      [i - 1, 1]
+    dstpop = p.populations[dstind]
+    nbrinds = if dstind == 1
+      [count, dstind + 1]
+    elseif dstind == count
+      [dstind - 1, 1]
     else
-      [i - 1, i + 1]
+      [dstind - 1, dstind + 1]
     end
-    srcpop = p.populations[rand(nbrinds)]
+    srcpop = pristine.populations[rand(nbrinds)]
     popmigrate!(dstpop, srcpop, migct)
   end
 end

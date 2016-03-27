@@ -4,9 +4,10 @@ import NKLandscapes
 const NK = NKLandscapes
 using FactCheck
 
-n = 3    # n is arbitrary as long as n >= 3
+n = 4    # n is arbitrary as long as n >= 3, but larger n may give a better test
 k = 0    # k must be 0 for these tests to work
-a = 2    # a must be 2 for some of the neutral nets functions to work
+q = 2    # q is the number of possible values for a contrib in NKq landscapes
+a = 2    # Only a = 2 is implemented at this time
 
 # Since k == 0, ls has a single minimum fitness neutral net and a single
 # maximum fitness neutral net. Works for either an NKq landscape or an NK
@@ -21,29 +22,30 @@ end
 function LandscapeProperties(ls::NK.Landscape)
   fa = NK.lsfits(ls)
   fl = NK.fitlevs(ls, ls.n, fa)
-  min_g = NK.itog(NK.IntGenotype(indmin(fa)) - 1, ls)
+  min_g = NK.Genotype(indmin(fa) - 1, ls)
   LandscapeProperties(ls, fa, fl, min_g)
 end
 
 lsp_nk = LandscapeProperties(NK.NKLandscape(n, k))
-lsp_nkq = LandscapeProperties(NK.NKqLandscape(n, k, a))
-lsp_list = [lsp_nk, lsp_nkq]
+lsp_nkq = LandscapeProperties(NK.NKqLandscape(n, k, q))
+lsp_list = [lsp_nk, lsp_nkq ]
 
-facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
+context("Fast neighbors, walks, and neutral net tests") do
   context("NK.neighbors(...)") do
     for lsp in lsp_list
-      fe_size = size(NK.fitter_or_equal_neighbors(lsp.min_g,lsp.ls))[2]
-      @fact n --> fe_size "Expected number of fitter or equal neighbors to be N = $n"
-      nn_size = size(NK.neutral_neighbors(lsp.min_g,lsp.ls))[2]
-      fn_size = size(NK.fitter_neighbors(lsp.min_g,lsp.ls))[2]
-      @fact n --> nn_size + fn_size "Expected number of neutral nbrs + number of fitter nbrs to be N = $n"
+      fe_length = length(NK.fitter_neighbors(lsp.min_g,orequal=true))
+      #println("fe_length:",fe_length)
+      @fact n --> fe_length "Expected number of fitter or equal neighbors to be N = $n"
+      nn_length = length(NK.neutral_neighbors(lsp.min_g))
+      fn_length = length(NK.fitter_neighbors(lsp.min_g))
+      @fact n --> nn_length + fn_length "Expected number of neutral nbrs + number of fitter nbrs to be N = $n"
       fit_increment = 1.0/lsp.ls.n - eps()
       lb = 0.0
       frn_sum = 0
       for i = 0:lsp.ls.n
         ub = lb + fit_increment
-        frn_size = size(NK.fitness_range_neighbors(lsp.min_g,lsp.ls,lb,ub))[2]
-        frn_sum += frn_size
+        frn_length = length(NK.fitness_range_neighbors(lsp.min_g,lb,ub))
+        frn_sum += frn_length
         lb = ub 
       end
       @fact n --> frn_sum "Expected sum of number of fitness range neighbors to be N = $n"
@@ -53,17 +55,17 @@ facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
   context("NK.walks(...)") do
     for lsp in lsp_list
       max_fit = maximum(lsp.fa)
-      rand_w = NK.random_adaptive_walk(lsp.min_g,lsp.ls)
-      @fact max_fit --> roughly(rand_w.fitnesses[end]) 
+      rand_w = NK.random_adaptive_walk(lsp.min_g)
+      @fact max_fit --> roughly(NK.fitness(rand_w.history_list[end]))
         "Expected final fitness of random adaptive walk to be maximum fitness of landscape which is $max_fit"
-      greedy_w = NK.greedy_adaptive_walk(lsp.min_g,lsp.ls)
-      @fact max_fit --> roughly(greedy_w.fitnesses[end]) 
+      greedy_w = NK.greedy_adaptive_walk(lsp.min_g)
+      @fact max_fit --> roughly(NK.fitness(greedy_w.history_list[end]))
         "Expected final fitness of greedy adaptive walk to be maximum fitness of landscape which is $max_fit"
-      reluct_w = NK.reluctant_adaptive_walk(lsp.min_g,lsp.ls)
-      @fact max_fit --> roughly(reluct_w.fitnesses[end]) 
+      reluct_w = NK.reluctant_adaptive_walk(lsp.min_g)
+      @fact max_fit --> roughly(NK.fitness(reluct_w.history_list[end]))
         "Expected final fitness of reluctant adaptive walk to be maximum fitness of landscape which is $max_fit"
-      fit_neutral_w = NK.fitter_then_neutral_walk(lsp.min_g,lsp.ls)
-      @fact max_fit --> roughly(fit_neutral_w.fitnesses[end]) 
+      fit_neutral_w = NK.fitter_then_neutral_walk(lsp.min_g)
+      @fact max_fit --> roughly(NK.fitness(fit_neutral_w.history_list[end]))
         "Expected final fitness of fitter_then_neutral adaptive walk to be maximum fitness of landscape which is $max_fit"
     end
   end

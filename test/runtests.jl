@@ -1,5 +1,4 @@
-using NKLandscapes
-using Base.Test
+# Test runner
 
 include("unit.jl")
 

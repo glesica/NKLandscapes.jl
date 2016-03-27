@@ -1,20 +1,24 @@
 module NKLandscapes
 
-include("Landscape.jl")
-include("Genotype.jl")
-include("Population.jl")
-include("MetaPopulation.jl")
-include("Neighbors.jl")
-include("Walks.jl")
-include("Enumeration.jl")
+include("aliases.jl")
+
+include("landscape.jl")
+include("genotype.jl")
+include("population.jl")
+include("metapopulation.jl")
+include("neighbors.jl")
+include("walks.jl")
+include("enumeration.jl")
 
 include("selection/moran.jl")
 include("selection/proportional.jl")
 include("selection/tournament.jl")
+include("selection/elite.jl")
 
-include("Mutation.jl")
+include("mutation/bitwise.jl")
+include("mutation/bitstring.jl")
 
-include("Migration.jl")
+include("migration.jl")
 
 end
-#using NKLandscapes
+

@@ -9,7 +9,11 @@ such as those that are geographically isolated from one another.
 A meta population can be used in all instances where an ordinary population is
 valid.
 """
-typealias MetaPopulation Array{Int64,3}
+type MetaPopulation
+  populations::Vector{Population}
+end
+
+MetaPopulation(mp::MetaPopulation) = MetaPopulation([Population(p) for p = mp.populations])
 
 @doc """rand(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64)
 
@@ -17,15 +21,8 @@ Create a random meta population based on the given landscape. Each population
 will consist of `popsize` individuals and there will be `popct` individual
 populations.
 """
-function rand(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64)
-  p = zeros(Int64, ls.n, popsize, popct)
-  for ip = 1:popct
-    for ig = 1:popsize
-      p[:,ig,ip] = rand(Genotype, ls)
-    end
-  end
-  return p
-end
+rand(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64) =
+    MetaPopulation([rand(Population, ls, popsize) for _ = 1:popct])
 
 @doc """zeros(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64)
 
@@ -33,27 +30,20 @@ Create a meta population in which all loci "zeroed". Each population will
 consist of `popsize` individuals and there will be `popct` individual
 populations.
 """
-function zeros(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64)
-  p = zeros(Int64, ls.n, popsize, popct)
-  for ip = 1:popct
-    for ig = 1:popsize
-      p[:,ig,ip] = zeros(Genotype, ls)
-    end
-  end
-  return p
-end
+zeros(::Type{MetaPopulation}, ls::Landscape, popsize::Int64, popct::Int64) =
+    MetaPopulation([zeros(Population, ls, popsize) for _ = 1:popct])
 
 @doc """popsize(p::MetaPopulation)
 
 Return the number of individuals in each population within the meta population.
 """
-popsize(p::MetaPopulation) = size(p)[2]
+popsize(p::MetaPopulation) = length(p.populations[1].genotypes)
 
 @doc """popct(p::MetaPopulation)
 
 Return the number of populations within the meta population.
 """
-popct(p::MetaPopulation) = size(p)[3]
+popct(p::MetaPopulation) = length(p.populations)
 
 @doc """popfits(p::MetaPopulation, ls::Landscape)
 
@@ -61,11 +51,11 @@ Return a matrix of fitness values where the ith row represents the fitness
 values of the ith member of each population. Each column represents a
 population.
 """
-function popfits(p::MetaPopulation, ls::Landscape)
+function popfits(p::MetaPopulation)
   fs = zeros(Float64, popsize(p), popct(p))
   for ip = 1:popct(p)
     for ig = 1:popsize(p)
-      fs[ig,ip] = fitness(p[:,ig,ip], ls)
+      fs[ig, ip] = fitness(p.populations[ip].genotypes[ig])
     end
   end
   return fs

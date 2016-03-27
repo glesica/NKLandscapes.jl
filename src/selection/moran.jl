@@ -2,7 +2,7 @@ import Base.Random: rand
 
 export moransel, moransel!
 
-@doc """moransel(p::Population, ls::Landscape, iters::Int64)
+@doc """moransel(p::Population, iters::Int64)
 
 Conduct Moran selection `iters` number of times. See below for more information
 about a Moran process. Basically, this means to first select an individual
@@ -11,24 +11,24 @@ to replace it.
 
 https://en.wikipedia.org/wiki/Moran_process
 """
-function moransel(p::Population, ls::Landscape, iters::Int64)
-  np = copy(p)
-  moransel!(np, ls, iters)
+function moransel(p::Population, iters::Int64)
+  np = Population(p)
+  moransel!(np, iters)
   return np
 end
 
-function moransel(p::MetaPopulation, ls::Landscape, iters::Int64)
-  np = copy(p)
-  moransel!(np, ls, iters)
+function moransel(mp::MetaPopulation, iters::Int64)
+  np = MetaPopulation(mp)
+  moransel!(np, iters)
   return np
 end
 
-@doc """moransel!(p::Population, ls::Landscape, iters::Int64)
+@doc """moransel!(p::Population, iters::Int64)
 
 Conduct Moran selection in-place.
 """
-function moransel!(p::Population, ls::Landscape, iters::Int64)
-  fs = popfits(p, ls)
+function moransel!(p::Population, iters::Int64)
+  fs = popfits(p)
   fmax = maximum(fs)
   n = popsize(p)
 
@@ -43,13 +43,13 @@ function moransel!(p::Population, ls::Landscape, iters::Int64)
       end
     end
 
-    p[:,indkill] = p[:,indbirth]
+    p.genotypes[indkill] = Genotype(p.genotypes[indbirth])
   end
 end
 
-function moransel!(p::MetaPopulation, ls::Landscape, iters::Int64)
-  for ip = popct(p)
-    moransel!(p[:,:,ip], ls, iters)
+function moransel!(mp::MetaPopulation, iters::Int64)
+  for p = mp.populations
+    moransel!(p, iters)
   end
 end
 

@@ -22,14 +22,10 @@ function genetic_algorithm( ls::Landscape, pop_size::Int64, maxgens::Int64;
     selection_funct::Function=propsel!, tournsel_k::Int64=2,
     moran_sel_iters::Float64=1.0,   # Fraction of ls.n 
     mutation_funct::Function=bwmutate!, mut_prob::Float64=1.0, # Mutation rate is mut_prob/ls.n
-    init_genotype::Any=Void, termination_funct::Function=default_termination_funct, 
+    termination_funct::Function=default_termination_funct, 
     statistics_funct::Function=default_statistics_funct )
-  p::Population
-  if typeof(init_genotype) <: Genotype
-    p = constant(Population, init_genotype, pop_size)
-  else
-    p = rand(Population, ls, pop_size)
-  end
+
+  p = rand(Population, ls, pop_size)
   gen = 1
   while gen <= maxgens
     statistics_funct( gen, p )
@@ -76,7 +72,6 @@ end
 Modify to collect statistics about the run.
 """
 function default_statistics_funct(gen::Int64, p::Population )
-  return false
 end
 
 @doc """ simple (gen::Int64, p::Population )
@@ -86,7 +81,5 @@ Report the generation number and the maximum fitness at that generation.
 function simple_statistics_funct(gen::Int64, p::Population )
   pfits = popfits( p )
   println("Generation: ", gen, "  Max fitness: ", maximum(pfits) )
-  #println(p)
-  #println(map(fitness,p.genotypes))
 end
 

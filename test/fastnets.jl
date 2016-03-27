@@ -30,7 +30,7 @@ lsp_nk = LandscapeProperties(NK.NKLandscape(n, k))
 lsp_nkq = LandscapeProperties(NK.NKqLandscape(n, k, q))
 lsp_list = [lsp_nk, lsp_nkq ]
 
-facts("NKLandscapes.jl fast neighbors, walks, and neutral net tests") do
+context("Fast neighbors, walks, and neutral net tests") do
   context("NK.neighbors(...)") do
     for lsp in lsp_list
       fe_length = length(NK.fitter_neighbors(lsp.min_g,orequal=true))

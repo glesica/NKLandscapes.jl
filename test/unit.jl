@@ -14,5 +14,6 @@ facts("NKLandscapes") do
   include("walks.jl")
 
   include("fastfunc.jl")
+  include("fastnets.jl")
 end
 

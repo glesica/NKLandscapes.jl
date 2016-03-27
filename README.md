@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/glesica/NKLandscapes.jl.svg?branch=master)](https://travis-ci.org/glesica/NKLandscapes.jl)
 [![codecov.io](https://codecov.io/github/glesica/NKLandscapes.jl/coverage.svg?branch=master)](https://codecov.io/github/glesica/NKLandscapes.jl?branch=master)
 [![NKLandscapes](http://pkg.julialang.org/badges/NKLandscapes_0.4.svg)](http://pkg.julialang.org/?pkg=NKLandscapes&ver=0.4)
+[![NKLandscapes](http://pkg.julialang.org/badges/NKLandscapes_0.5.svg)](http://pkg.julialang.org/?pkg=NKLandscapes&ver=0.5)
 
 # NKLandscapes.jl
 

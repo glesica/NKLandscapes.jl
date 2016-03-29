@@ -24,7 +24,6 @@ function genetic_algorithm( ls::Landscape, pop_size::Int64, maxgens::Int64;
     mutation_funct::Function=bwmutate!, mut_prob::Float64=1.0, # Mutation rate is mut_prob/ls.n
     termination_funct::Function=default_termination_funct, 
     statistics_funct::Function=default_statistics_funct )
-
   p = rand(Population, ls, pop_size)
   gen = 1
   while gen <= maxgens

@@ -37,6 +37,7 @@ Mutate a single locus within the given genotype.
 """
 function bsmutate!(g::Genotype)
   mask = AlleleMask(1) << rand(0:(g.landscape.n - 1))
+  println("mask: ",mask)
   g.alleles = g.alleles $ mask
 end
 

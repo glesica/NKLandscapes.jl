@@ -7,3 +7,4 @@ echo "Running tests on release version..."
 docker run -v "$PWD":/opt/src julia:release
 echo "Running tests on latest version..."
 docker run -v "$PWD":/opt/src julia:nightly
+

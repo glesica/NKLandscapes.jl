@@ -1,14 +1,9 @@
-using FactCheck
-
-import NKLandscapes
-const NK = NKLandscapes
-
-const pcount = 4
-const psize = 2
+pcount = 4
+psize = 2
 
 srand(1)
 
-facts("mutation.jl") do
+context("mutation.jl") do
   landscapes = [
     NK.NKLandscape(4, 1),
     NK.NKqLandscape(4, 1, 2),
@@ -39,6 +34,15 @@ facts("mutation.jl") do
         end
       end
 
+      context("bwmutate(::Genotype)") do
+        g = rand(NK.Genotype, ls)
+        ng = NK.bwmutate(g, 1.0)
+        @fact g.alleles --> not(ng.alleles)
+        g = rand(NK.Genotype, ls)
+        ng = NK.bwmutate(g, 0.0)
+        @fact g.alleles --> ng.alleles
+      end
+
       context("bsmutate(...)") do
         p = rand(NK.Population, ls, psize)
         np = NK.bsmutate(p, 1.0)
@@ -58,6 +62,15 @@ facts("mutation.jl") do
             @fact nmp.populations[i].genotypes[j] --> not(mp.populations[i].genotypes[j])
           end
         end
+      end
+
+      context("bsmutate(::Genotype)") do
+        g = rand(NK.Genotype, ls)
+        ng = NK.bsmutate(g, 1.0)
+        @fact g.alleles --> not(ng.alleles)
+        g = rand(NK.Genotype, ls)
+        ng = NK.bsmutate(g, 0.0)
+        @fact g.alleles --> ng.alleles
       end
 
       context("bsmutate!(::Genotype)") do

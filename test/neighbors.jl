@@ -1,11 +1,6 @@
-using FactCheck
-
-import NKLandscapes
-const NK = NKLandscapes
-
 srand(1)
 
-facts("neighbors.jl") do
+context("neighbors.jl") do
   landscapes = [
     NK.NKLandscape(4, 1),
     NK.NKqLandscape(4, 1, 2),

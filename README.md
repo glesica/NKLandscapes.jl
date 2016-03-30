@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/glesica/NKLandscapes.jl.svg?branch=master)](https://travis-ci.org/glesica/NKLandscapes.jl)
 [![codecov.io](https://codecov.io/github/glesica/NKLandscapes.jl/coverage.svg?branch=master)](https://codecov.io/github/glesica/NKLandscapes.jl?branch=master)
 [![NKLandscapes](http://pkg.julialang.org/badges/NKLandscapes_0.4.svg)](http://pkg.julialang.org/?pkg=NKLandscapes&ver=0.4)
+[![NKLandscapes](http://pkg.julialang.org/badges/NKLandscapes_0.5.svg)](http://pkg.julialang.org/?pkg=NKLandscapes&ver=0.5)
 
 # NKLandscapes.jl
 
@@ -53,10 +54,6 @@ published results.
 The unit tests may be run with `./runtests.sh unit`. The functional tests may
 be run with `./runtests.sh SUITE` where `SUITE` is one of the following:
 
-  * fastfunc - some fast-running functional tests, these are run automatically
-    with the unit tests
-  * fastnets - some tests around neutral network enumeration, these are run
-    automatically with the unit tests
   * `kauffman` - experiments from [1]
   * `nowak` - experiments from [2]
 
@@ -76,4 +73,5 @@ powerful workstation.
   * Implement all four Nowak and Krug random walk strategies.
   * Finish functional tests.
   * Store fitnesses with population to avoid recomputing them.
+  * Add tests for bit string enumeration code.
 

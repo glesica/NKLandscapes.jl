@@ -36,7 +36,7 @@ end
 
 srand(1)
 
-facts("basins.jl") do
+context("basins.jl") do
   landscapes = [
     NK.NKLandscape(4, 1)
   ]

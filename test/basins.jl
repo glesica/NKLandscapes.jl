@@ -1,5 +1,3 @@
-using FactCheck
-
 using Base.Collections
 using DataStructures
 using NKLandscapes

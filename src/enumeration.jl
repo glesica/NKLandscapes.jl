@@ -1,6 +1,6 @@
 using DataStructures
 
-export fitness, lsfits, fitlevs, levcounts, neighbors, neutralnet, neutralnets
+export fitness, lsfits, fitlevs, levcounts, neighbors, neutralnet, neutralnets, netcounts
 
 @doc """lsfits(ls::Landscape)
 

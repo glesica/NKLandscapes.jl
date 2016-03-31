@@ -15,7 +15,7 @@ that the arity of the landscape is 2.
 using NKLandscapes
 using DataStructures
 
-@doc """
+@doc """ function neutral_net_summary(counts, num_intervals)
 Returns a list of information about the connected neutral nets at each non-empty fitness level
 Each list element is a 5-tuple with the following components 
 *  The fit level (empty fit levels are not included)
@@ -28,12 +28,12 @@ Note that if this ratio is close to 1.0, then a high proportion of the genotypes
 """
 function neutral_net_summary(counts, num_intervals)
   fit_increment = 1.0/num_intervals
-  nn3 = map(x->x[3],nn_list)
+  nn3 = map(x->x[3],counts)
   lb = minimum(nn3)
   ub = maximum(nn3)
   summary = []
   for i = lb:ub
-    filtered_nn = [y[2] for y in filter(x->x[3]==i,nn_list)]
+    filtered_nn = [y[2] for y in filter(x->x[3]==i,counts)]
     if length(filtered_nn) > 0
       max_nn = maximum(filtered_nn)
       sum_nn = sum(filtered_nn)
@@ -42,6 +42,20 @@ function neutral_net_summary(counts, num_intervals)
   end
   return summary
 end
+
+@doc """ function neutral_net_summary(ls::NKLandscape)
+
+Produces the same results as the previous function, but starting with an NK or NKq landscape.
+"""
+
+function neutral_net_summary(ls::Landscape, num_intervals::Int64=ls.n)
+  lsf = lsfits(ls);
+  flevs = fitlevs(ls, num_intervals, lsf);
+  nn = neutralnets(ls,flevs)
+  ncounts = netcounts(nn,flevs)
+  neutral_net_summary(ncounts,num_intervals)
+end
+
 
 @doc """
 Prints the the list of fitness levels returned by neutral_net_summary in CSV format.

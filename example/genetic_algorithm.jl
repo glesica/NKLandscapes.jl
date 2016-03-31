@@ -1,0 +1,1 @@
+../../NKLandscapes.jl-basins-refactor/example/genetic_algorithm.jl

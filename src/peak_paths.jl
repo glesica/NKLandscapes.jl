@@ -56,8 +56,8 @@ function setup(n)
   global ls = NKLandscape(n,2)
   global ff = lsfits(ls)
   global bcc = basinlists(basins(ls,ff),ls)
-  global p1 = cv(bcc[1].gtype)
-  global p2 = cv(bcc[2].gtype)
+  global p1 = cv(bcc[1].genotype)
+  global p2 = cv(bcc[2].genotype)
 end
 
 @doc """ function edge_cost(gtype1::AlleleString, gtype2::AlleleString, ls::NKLandscape, fits::Vector{Float64})
@@ -183,13 +183,13 @@ function report_paths(n,k,num_landscapes)
     denom = 0
     bcc = sort(basinlists!(basins(ls,fts),ls),lt=(x,y)->x.peak_fitness<y.peak_fitness)
     #println("bcc:",bcc)
-    g_set = Set{Genotype}(map(b->b.gtype,bcc))   # List of peak genotypes
+    g_set = Set{Genotype}(map(b->b.genotype,bcc))   # List of peak genotypes
     #println("g_set",g_set)
     if length(bcc) > 1
       i = 1
       count = 0
       for i = 1:length(bcc)
-        gi = bcc[i].gtype
+        gi = bcc[i].genotype
         #println("gi:",gi)
         setdiff!(g_set,[gi])
         filtered_set = filter(x->hamming_dist(x,gi)<dist_cutoff,g_set)
@@ -233,10 +233,10 @@ function test_paths(ls::NKLandscape, fits::Vector{Float64})
   bcc = sort(basinlists!(basins(ls,fits),ls),lt=(x,y)->x.peak_fitness<y.peak_fitness)
   if length(bcc) > 1
     for i = 1:length(bcc)
-      gi = bcc[i].gtype
+      gi = bcc[i].genotype
       gi_set = Set{Genotype}([gi])
       for j = i+1:length(bcc)
-        gj = bcc[j].gtype
+        gj = bcc[j].genotype
         gj_set = Set{Genotype}([gj])
         spw_ij = least_cost_paths(gi,gj_set,ls,fits,single_path=true,edge_cost_funct=edge_cost_sym)
         spw_ji = least_cost_paths(gj,gi_set,ls,fits,single_path=true,edge_cost_funct=edge_cost_sym)

@@ -25,8 +25,8 @@ function test_basins(ls::NKLandscape, fits::Vector{Float64}=zeros(Float64,0))
   end
   # Check that the representative of each basin is a local maximum.
   for b in basin_lists
-    fit_b = fitness(b.gtype)
-    fn = fittest_neighbor(b.gtype)
+    fit_b = fitness(b.genotype)
+    fn = fittest_neighbor(b.genotype)
     fit_fn = fitness(fn)
     @fact fit_fn --> less_than(fit_b)
   end

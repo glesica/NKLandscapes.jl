@@ -8,7 +8,7 @@ A basin of attraction of a local optimum under an adaptive walk (currently only 
 """
 
 type Basin
-  gtype::Genotype
+  genotype::Genotype
   count::Int64
   peak_fitness::Float64
 end

@@ -1,4 +1,4 @@
-export NKpLandscape
+export NKpLandscape, prob_neutral
 
 # Construct an NKp landscape, see:
 # Barnett, L. (1998). Ruggedness and Neutrality - The NKp Family of Fitness

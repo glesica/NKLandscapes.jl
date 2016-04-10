@@ -1,6 +1,6 @@
 import Base.show
 
-export Landscape, prob_neutral
+export Landscape, fitrange
 
 @doc """ function makelinks(n::Int64, k::Int64, near::Bool)
 
@@ -52,6 +52,26 @@ end
 abstract Landscape
 
 show(io::Base.IO, l::Landscape) = print(io, "$(typeof(l))($(l.n), $(l.k))")
+
+@doc """fitrange(ls::Landscape)
+
+Return a 2-tuple of the minimum and maximum fitness values present in the given
+landscape.
+"""
+function fitrange(ls::Landscape)
+  min = 1.0
+  max = 0.0
+  for i = 0:(ls.a^ls.n - 1)
+    f = fitness(Genotype(i, ls))
+    if f < min
+      min = f
+    end
+    if f > max
+      max = f
+    end
+  end
+  return (min, max)
+end
 
 include("landscape/nk.jl")
 include("landscape/nkq.jl")

@@ -2,17 +2,20 @@ export number_neighbors, all_neighbors, random_neighbor,
     neutral_neighbors, fitter_neighbors, fitness_range_neighbors,
     fittest_neighbors, fittest_neighbor
 
+@doc """neighbors(g::Genotype)
+
+Returns a list of neighbors of Genotype g.
+"""
 # TODO: Implement all four of Nowak and Krug's methods.
 
 function neighbors(g::Genotype)
-  # TODO: Figure out if `Task`s will be GC'd on a `break`.
-  Task(function ()
-    for i = 0:(g.landscape.n - 1)
-      locusmask = AlleleMask(1) << i
-      alleles::AlleleString = g.alleles $ locusmask
-      produce(Genotype(alleles, g.landscape))
-    end
-  end)
+  result = Genotype[]
+  for i = 0:(g.landscape.n - 1)
+    locusmask = AlleleMask(1) << i
+    alleles::AlleleString = xor(g.alleles, locusmask)
+    Base.push!(result,Genotype(alleles, g.landscape))
+  end
+  result
 end
 
 @doc """number_neighbors(g::Genotype)
@@ -45,7 +48,7 @@ Returns a random neighbor of the given genotype.
 function random_neighbor(g::Genotype)
   i = rand(0:(g.landscape.n - 1))
   locusmask = AlleleMask(1) << i
-  alleles::AlleleString = g.alleles $ locusmask
+  alleles::AlleleString = xor(g.alleles, locusmask)
   return Genotype(alleles, g.landscape)
 end
 

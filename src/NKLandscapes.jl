@@ -21,4 +21,4 @@ include("mutation/bitstring.jl")
 include("migration.jl")
 
 end
-
+using NKLandscapes

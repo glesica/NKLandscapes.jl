@@ -4,13 +4,13 @@ export AlleleMask, AlleleString, AlleleLinks, AlleleContribs
 
 A bit mask that identifies one or several alleles within a genotype.
 """
-typealias AlleleMask UInt128
+const AlleleMask = UInt128
 
 @doc """AlleleString UInt128
 
 A bit string that represents the alleles of a particular genotype.
 """
-typealias AlleleString UInt128
+const AlleleString = UInt128
 
 @doc """AlleleLinks Vector{AlleleMask}
 
@@ -22,7 +22,7 @@ Each mask should have a 1 in the position that corresponds to the locus
 discussed above, and in the K positions that correspond to the loci to which it
 is epistatically linked.
 """
-typealias AlleleLinks Vector{AlleleMask}
+const AlleleLinks = Vector{AlleleMask}
 
 @doc """AlleleContribs Vector{Dict{AlleleString, Float64}}
 
@@ -38,7 +38,7 @@ Each dictionary then maps a bit string into a fitness contribution. The bit stri
   * The K loci to which the locus above is linked should contain their actual
     values, either 1 or 0
 """
-typealias AlleleContribs Vector{Dict{AlleleString, Float64}}
+const AlleleContribs = Vector{Dict{AlleleString, Float64}}
 
 newAlleleContribs(n::Int64) = [Dict{AlleleString, Float64}() for _ = 1:n]
 

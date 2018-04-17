@@ -42,7 +42,7 @@ function bwmutate!(g::Genotype, mutprob::Float64)
     end
     current = current << 1
   end
-  g.alleles = g.alleles $ mask
+  g.alleles = xor( g.alleles, mask )
 end
 
 @doc """bwmutate!(p::Population, ls::Landscape, mutprob::Float64)

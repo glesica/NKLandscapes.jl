@@ -117,7 +117,7 @@ function least_cost_paths(source::Genotype, destinations::Set{Genotype}, ls::NKL
     if !in(queue_node.current, closed)
       push!(closed, queue_node.current)
       for nbr = neighbors(Genotype(queue_node.current,ls))
-        #heuristic = count_ones( nbr $ peak2 )  # can be used to convert algorithm to A* for single paths
+        #heuristic = count_ones( xor(nbr, peak2) )  # can be used to convert algorithm to A* for single paths
         new_cost = edge_cost_funct(nbr.alleles,queue_node.current,ls,fits,fit_diff_weight)
         value = get(queue,nbr,Void)
         if (value == Void) || (value < new_cost)
@@ -138,7 +138,7 @@ function path_cost(path::Array{AlleleString,1},ls::NKLandscape, fit_diff_weight:
   cost = 0.0
   gprev = path[1]
   for gnext in path[2:end]
-      hdist = count_ones( gprev $ gnext )
+      hdist = count_ones( xor(gprev,  gnext) )
       fit_diff = abs(fitness(gprev,ls)-fitness(gnext,ls))*ls.n*fit_diff_weight
       cost += hdist + fit_diff
       println("hdist:",hdist,"  fit_diff:", ls.n*abs(fitness(gprev,ls)-fitness(gnext,ls)))
@@ -152,7 +152,7 @@ end
 Returns Hamming distances between the alleles of g1 and the alleles of g2.
 """
 function hamming_dist(g1::Genotype,g2::Genotype)
-  count_ones(g1.alleles $ g2.alleles)
+  count_ones(xor(g1.alleles, g2.alleles))
 end
 
 type LandscapePathSummary
@@ -200,7 +200,7 @@ function summary_landscape_paths(n::Int64, k::Int64, fit_diff_weight::Float64; p
       ave_length += length(sp.path)-1
       ave_cost += sp.cost
       ave_dec_fitness += sp.decrease_fitness
-      min_length += count_ones( sp.path[1] $ sp.path[end] )  # Hamming distance between start and end of path
+      min_length += count_ones( xor(sp.path[1], sp.path[end]) )  # Hamming distance between start and end of path
       count += 1
     end
   end
@@ -262,7 +262,7 @@ directions using a symmetric edge_cost function, and checking that lengths
 and costs are equal.
 """
 function test_paths(ls::NKLandscape, fits::Vector{Float64},fit_diff_weight)
-  bcc = sort(basinlists!(basins(ls,fits),ls),lt=(x,y)->x.peak_fitness<y.peak_fitness)
+  bcc = sort(basinlist!(basins(ls,fits),ls),lt=(x,y)->x.peak_fitness<y.peak_fitness)
   if length(bcc) > 1
     for i = 1:length(bcc)
       gi = bcc[i].gtype

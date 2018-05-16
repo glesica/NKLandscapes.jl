@@ -118,7 +118,7 @@ function least_cost_paths(source::Genotype, destinations::Set{Genotype}, ls::NKL
       #println("closed:",closed)
       for nbr = neighbors(Genotype(ng_node.current,ls))
         #fit_diff = abs(fitness(nbr,ls)-fitness(ng_node.current,ls))*ls.n*fit_diff_weight
-        #heuristic = count_ones( nbr $ peak2 )
+        #heuristic = count_ones( xor(nbr, peak2) )
         new_cost = edge_cost_funct(nbr.alleles,ng_node.current,ls,fits,fit_diff_weight)
         #println("cur:",ng_node.current,"  nbr:",nbr,"  cur_cost:",ng_node.cost,"   new_cost:",new_cost)
         value = get(queue,nbr,Void)
@@ -143,7 +143,7 @@ function path_cost(path::Array{AlleleString,1},ls::NKLandscape)
   cost = 0.0
   gprev = path[1]
   for gnext in path[2:end]
-      hdist = count_ones( gprev $ gnext )
+      hdist = count_ones( xor(gprev, gnext ))
       fit_diff = abs(fitness(gprev,ls)-fitness(gnext,ls))*ls.n*fit_diff_weight
       cost += hdist + fit_diff
       println("hdist:",hdist,"  fit_diff:", ls.n*abs(fitness(gprev,ls)-fitness(gnext,ls)))
@@ -153,7 +153,7 @@ function path_cost(path::Array{AlleleString,1},ls::NKLandscape)
 end
 
 function hamming_dist(g1::Genotype,g2::Genotype)
-  count_ones(g1.alleles $ g2.alleles)
+  xor( count_ones(g1.alleles, g2.alleles))
 end
 
 @doc """ function summary_paths(n,k,num_landscapes)
@@ -199,7 +199,7 @@ function report_paths(n,k,num_landscapes)
         for sp in spw   # for each least-cost path
           ave_length += length(sp.path)-1
           ave_cost += sp.cost
-          min_length += count_ones( sp.path[1] $ sp.path[end] )  # Hamming distance between start and end of path
+          min_length += xor(count_ones( sp.path[1], sp.path[end] ))  # Hamming distance between start and end of path
           count += 1
         end
       end

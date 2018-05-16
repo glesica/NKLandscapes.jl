@@ -24,3 +24,4 @@ include("Migration.jl")
 
 end
 
+using NKLandscapes

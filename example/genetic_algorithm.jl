@@ -19,12 +19,18 @@ A statistics function is called at the beginning of every generation and at term
 """
 
 function genetic_algorithm( ls::Landscape, pop_size::Int64, maxgens::Int64;
-    selection_funct::Function=propsel!, tournsel_k::Int64=2,
-    moran_sel_iters::Float64=1.0,   # Fraction of ls.n 
+    selection_funct::Function=propsel!, 
+    tournsel_k::Int64=2,   # number of individuals in a tournament
+    moransel_iters::Float64=1.0,   # Fraction of ls.n 
     mutation_funct::Function=bwmutate!, mut_prob::Float64=1.0, # Mutation rate is mut_prob/ls.n
-    termination_funct::Function=default_termination_funct, 
+    termination_funct::Function=default_termination_funct, init_genotype::Any=Void,
     statistics_funct::Function=default_statistics_funct )
-  p = rand(Population, ls, pop_size)
+  p::Population
+  if typeof(init_genotype) <: Genotype
+    p = constant(Population, rg, pop_size)  # Initialize to a single-genotype populaiton
+  else
+    p = rand(Population, ls, pop_size)
+  end
   gen = 1
   while gen <= maxgens
     statistics_funct( gen, p )
@@ -32,7 +38,7 @@ function genetic_algorithm( ls::Landscape, pop_size::Int64, maxgens::Int64;
     if selection_funct == tournsel!
       selection_funct(p, tournsel_k)
     elseif selection_funct == moransel!
-      selection_funct(p, convert(Int,round(ls.n*moran_sel_iters)))
+      selection_funct(p, convert(Int,round(ls.n*moransel_iters)))
     else
       selection_funct(p)
     end
@@ -83,5 +89,33 @@ function simple_statistics_funct(gen::Int64, p::Population )
   println("Generation: ", gen, "  Max fitness: ", maximum(pfits) )
   #println(p)
   #println(map(fitness,p.genotypes))
+end
+
+@doc """ function test_genetic_algorithm(N::Int64, K::Int64 )
+  Tests the various options for function genetic_algorithm().
+  Note that the use of simple_statistics_funct  does give some printed output.
+"""
+
+function test_genetic_algorithm(N::Int64, K::Int64 )
+  ls = NKLandscape(N,K)
+  popsize = 8
+  maxgens = 10
+  p0 = genetic_algorithm(ls,popsize,maxgens)
+  #println("p0:",p0)
+
+  p1 = genetic_algorithm(ls,popsize,maxgens,statistics_funct=simple_statistics_funct)
+  #println("p1:",p1)
+  
+  p2 = genetic_algorithm(ls,popsize,maxgens,selection_funct=moransel!,moransel_iters=2.0)
+  #println("p2:",p2)
+  
+  p3 = genetic_algorithm(ls,popsize,maxgens,selection_funct=tournsel!,tournsel_k=3)
+  #println("p3:",p3)
+  
+  p4 = genetic_algorithm(ls,popsize,maxgens,mutation_funct=bsmutate!,mut_prob=0.5)
+  #println("p4:",p4)
+  
+  p5 = genetic_algorithm(ls,popsize,maxgens,termination_funct=test_converged)
+  #println("p5:",p5)
 end
 

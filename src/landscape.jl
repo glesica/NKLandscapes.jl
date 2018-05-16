@@ -49,7 +49,7 @@ end
 
 # TODO: Provide a function to pre-fill contribs (for use with small k).
 
-abstract Landscape
+abstract type Landscape end
 
 show(io::Base.IO, l::Landscape) = print(io, "$(typeof(l))($(l.n), $(l.k))")
 

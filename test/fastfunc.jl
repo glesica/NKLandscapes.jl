@@ -154,7 +154,7 @@ facts("NKLandscapes.jl fast functional tests") do
     for _ = 1:trials
       newpop = NK.bwmutate(pop, mutprob)
       for i = 1:NK.popsize(pop)
-        total += (pop.genotypes[i].alleles $ newpop.genotypes[i].alleles) |> count_ones
+        total += xor(pop.genotypes[i].alleles, newpop.genotypes[i].alleles) |> count_ones
       end
     end
     meanmuts = total / (trials * NK.popsize(pop) * n)

@@ -17,7 +17,7 @@ function NKLandscape(n::Int64, k::Int64; a::Int64=2, near::Bool=false)
     error("only a == 2 is implemented at this time")
   end
   links = makelinks(n, k, near)
-  contribs = AlleleContribs(n)
+  contribs = newAlleleContribs(n)
   return NKLandscape(n, k, a, links, contribs)
 end
 

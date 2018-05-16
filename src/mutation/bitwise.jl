@@ -79,7 +79,7 @@ function bwmutate!(g::Genotype, mutprob::Float64)
       bits_mutated = sample(0:(g.landscape.n-1), num_bits_mutated, replace=false)
       mask = AlleleMask(0)
       for b in bits_mutated
-        mask $= one_bit_mask << b
+        mask = xor(mask, one_bit_mask << b)
       end
     end
   else  # if mutprob > 0.25 # The above is increasing inaccurate for higher values of mutprob.
@@ -93,7 +93,7 @@ function bwmutate!(g::Genotype, mutprob::Float64)
       current = current << 1
     end
   end
-  g.alleles = g.alleles $ mask
+  g.alleles = xor(g.alleles, mask )
   #println("after:  ",g)
   return 
 end
